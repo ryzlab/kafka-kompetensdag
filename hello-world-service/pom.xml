@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <dependencies>
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+            <version>1.2</version>
+        </dependency>
+    </dependencies>
+    <parent>
+        <groupId>se.ryz.kafka</groupId>
+        <artifactId>kafka-hello-world</artifactId>
+        <relativePath>../pom.xml</relativePath>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+
+    <groupId>se.ryz.kafka</groupId>
+    <artifactId>kafka-hello-world-service</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>kafka-hello-world-service</name>
+
+    <build>
+
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+        </dependency>
+    </dependencies>
+</project>

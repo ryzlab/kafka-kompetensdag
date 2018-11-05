@@ -1,0 +1,22 @@
+[
+{
+    "namespace": "se.ryz.kafka",
+    "type": "record",
+    "name": "HelloWorldRequest",
+    "doc": "A basic hello world Microservice request",
+    "fields": [
+        {"name": "timeOfArrival", "type": "long", "doc": "milliseconds"},
+        {"name": "request", "type": "string"}
+    ]
+},
+{
+    "namespace": "se.ryz.kafka",
+    "type": "record",
+    "name": "HelloWorldReply",
+    "doc": "A basic hello world Microservice reply",
+    "fields": [
+        {"name": "timeOfArrival", "type": "long", "doc": "milliseconds"},
+        {"name": "reply", "type": "string"}
+    ]
+}
+]
