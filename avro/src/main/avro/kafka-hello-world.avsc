@@ -1,22 +1,36 @@
 [
 {
-    "namespace": "se.ryz.kafka",
+    "namespace": "se.ryz.kafka.avro",
     "type": "record",
     "name": "HelloWorldRequest",
     "doc": "A basic hello world Microservice request",
     "fields": [
-        {"name": "timeOfArrival", "type": "long", "doc": "milliseconds"},
+        {"name": "timeOfDeparture", "type": "long", "doc": "milliseconds"},
         {"name": "request", "type": "string"}
     ]
 },
 {
-    "namespace": "se.ryz.kafka",
+    "namespace": "se.ryz.kafka.avro",
     "type": "record",
     "name": "HelloWorldReply",
     "doc": "A basic hello world Microservice reply",
     "fields": [
-        {"name": "timeOfArrival", "type": "long", "doc": "milliseconds"},
+        {"name": "timeOfDeparture", "type": "long", "doc": "milliseconds"},
         {"name": "reply", "type": "string"}
+    ]
+},
+{
+    "namespace": "se.ryz.kafka.avro",
+    "type": "record",
+    "name": "HelloWorldCommand",
+    "doc": "Either a request or a reply",
+    "fields": [
+        {"name": "timeOfDeparture", "type": "long", "doc": "milliseconds"},
+        {"name": "command", "type": [
+            "se.ryz.kafka.avro.HelloWorldRequest",
+            "se.ryz.kafka.avro.HelloWorldReply"
+        ]
+        }
     ]
 }
 ]
