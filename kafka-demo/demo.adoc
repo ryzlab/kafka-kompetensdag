@@ -1,0 +1,278 @@
+$CONFLUENT_DOCKER_IP== Source
+https://docs.confluent.io/current/installation/docker/docs/installation/clustered-deployment.html
+
+== Create machine
+  docker-machine create --driver virtualbox --virtualbox-memory 6000 confluent
+
+== List machines
+  docker-machine ls
+
+== Find IP of machines
+  docker-machine ls
+
+== Switch to machine
+  eval `docker-machine env confluent`
+
+== List all docker images
+  docker image ls
+
+== List all docker containers
+  docker ls container -a
+
+// -------------------------------
+
+== Start ==
+=== Start all Kafka containers
+  docker start `docker ps -a | grep kafka- | awk '{print $1}'`
+
+== Start all Zookeepers
+docker start `docker ps -a | grep zk- | awk '{print $1}'`
+
+== Start a Docker instance
+  docker start zk-1
+
+// -------------------------------
+
+== Stop ==
+=== Stop all containers
+  docker stop $(docker ps -a -q)
+
+== Stop all Zookeepers
+docker stop `docker ps -a | grep zk- | awk '{print $1}'`
+
+== Stop all Kafka instances
+docker stop `docker ps -a | grep kafka- | awk '{print $1}'`
+
+// -------------------------------
+
+== Remove ==
+=== Remove all containers
+  docker rm $(docker ps -a -q)
+
+=== Remove all Kafka containers
+  Note: they need to be stopped
+    docker stop `docker ps -a | grep kafka- | awk '{print $1}'`
+    docker rm -v `docker ps -a | grep kafka- | awk '{print $1}'`
+
+=== Prune docker Volumes and non-running containers
+  docker system prune
+  docker system prune --volumes
+
+// -------------------------------
+
+== Necessary environment
+NOTE: FIRST OF ALL SET CONFLUENT_DOCKER_IP!!!
+  export CONFLUENT_DOCKER_IP=`docker-machine ip confluent`
+
+== Zookeeper
+
+NOTE!!! SET CONFLUENT_DOCKER_IP AS ABOVE
+
+  docker run -d \
+    --net=host \
+    --name=zk-1 \
+    -e ZOOKEEPER_SERVER_ID=1 \
+    -e ZOOKEEPER_CLIENT_PORT=22181 \
+    -e KAFKA_JMX_PORT=29999 \
+    -e KAFKA_JMX_HOSTNAME=`docker-machine ip confluent` \
+    -e ZOOKEEPER_TICK_TIME=2000 \
+    -e ZOOKEEPER_INIT_LIMIT=5 \
+    -e ZOOKEEPER_SYNC_LIMIT=2 \
+    -e ZOOKEEPER_SERVERS="$CONFLUENT_DOCKER_IP:22888:23888;$CONFLUENT_DOCKER_IP:32888:33888;$CONFLUENT_DOCKER_IP:42888:43888" \
+    confluentinc/cp-zookeeper:5.1.0
+
+  docker run -d \
+    --net=host \
+    --name=zk-2 \
+    -e ZOOKEEPER_SERVER_ID=2 \
+    -e ZOOKEEPER_CLIENT_PORT=32181 \
+    -e KAFKA_JMX_PORT=39999 \
+    -e KAFKA_JMX_HOSTNAME=`docker-machine ip confluent` \
+    -e ZOOKEEPER_TICK_TIME=2000 \
+    -e ZOOKEEPER_INIT_LIMIT=5 \
+    -e ZOOKEEPER_SYNC_LIMIT=2 \
+    -e ZOOKEEPER_SERVERS="$CONFLUENT_DOCKER_IP:22888:23888;$CONFLUENT_DOCKER_IP:32888:33888;$CONFLUENT_DOCKER_IP:42888:43888" \
+    confluentinc/cp-zookeeper:5.1.0
+
+docker run -d \
+   --net=host \
+   --name=zk-3 \
+   -e ZOOKEEPER_SERVER_ID=3 \
+   -e ZOOKEEPER_CLIENT_PORT=42181 \
+   -e KAFKA_JMX_PORT=49999 \
+   -e KAFKA_JMX_HOSTNAME=`docker-machine ip confluent` \
+   -e ZOOKEEPER_TICK_TIME=2000 \
+   -e ZOOKEEPER_INIT_LIMIT=5 \
+   -e ZOOKEEPER_SYNC_LIMIT=2 \
+   -e ZOOKEEPER_SERVERS="$CONFLUENT_DOCKER_IP:22888:23888;$CONFLUENT_DOCKER_IP:32888:33888;$CONFLUENT_DOCKER_IP:42888:43888" \
+   confluentinc/cp-zookeeper:5.1.0
+
+=== Check ZooKeeper
+
+for i in 22181 32181 42181; do
+  docker run --net=host --rm confluentinc/cp-zookeeper:5.1.0 bash -c "echo stat | nc localhost $i | grep Mode"
+done
+
+//-------------------------------------------------
+
+== Kafka
+
+NOTE!!! SET CONFLUENT_DOCKER_IP AS ABOVE
+
+  docker run -d \
+    --net=host \
+    --name=kafka-1 \
+    -e KAFKA_JMX_PORT=60001 \
+    -e KAFKA_JMX_HOSTNAME=`docker-machine ip confluent` \
+    -e KAFKA_ZOOKEEPER_CONNECT=$CONFLUENT_DOCKER_IP:22181,$CONFLUENT_DOCKER_IP:32181,$CONFLUENT_DOCKER_IP:42181 \
+    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://$CONFLUENT_DOCKER_IP:29092 \
+    -e KAFKA_MIN_INSYNC_REPLICAS=2 \
+    -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false \
+    confluentinc/cp-kafka:5.1.0
+
+docker run -d \
+  --net=host \
+  --name=kafka-2 \
+  -e KAFKA_JMX_PORT=60002 \
+  -e KAFKA_JMX_HOSTNAME=`docker-machine ip confluent` \
+  -e KAFKA_ZOOKEEPER_CONNECT=$CONFLUENT_DOCKER_IP:22181,$CONFLUENT_DOCKER_IP:32181,$CONFLUENT_DOCKER_IP:42181 \
+  -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://$CONFLUENT_DOCKER_IP:39092 \
+  -e KAFKA_MIN_INSYNC_REPLICAS=2 \
+  -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false \
+  confluentinc/cp-kafka:5.1.0
+
+  docker run -d \
+    --net=host \
+    --name=kafka-3 \
+    -e KAFKA_JMX_PORT=60003 \
+    -e KAFKA_JMX_HOSTNAME=`docker-machine ip confluent` \
+    -e KAFKA_ZOOKEEPER_CONNECT=$CONFLUENT_DOCKER_IP:22181,$CONFLUENT_DOCKER_IP:32181,$CONFLUENT_DOCKER_IP:42181 \
+    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://$CONFLUENT_DOCKER_IP:49092 \
+    -e KAFKA_MIN_INSYNC_REPLICAS=2 \
+    -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false \
+    confluentinc/cp-kafka:5.1.0
+
+//-------------------------------------------------
+
+== Schema Registry
+
+NOTE!!! SET CONFLUENT_DOCKER_IP AS ABOVE
+
+  docker run -d \
+    --net=host \
+    --name=schema-registry \
+    -e SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=$CONFLUENT_DOCKER_IP:22181,$CONFLUENT_DOCKER_IP:32181,$CONFLUENT_DOCKER_IP:42181 \
+    -e SCHEMA_REGISTRY_HOST_NAME=`docker-machine ip confluent` \
+    -e SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:8081 \
+    confluentinc/cp-schema-registry:5.1.0
+
+=== Test Schema Registry
+  docker logs schema-registry
+
+//-------------------------------------------------
+
+== Kafka Manager
+
+NOTE!!! SET CONFLUENT_DOCKER_IP AS ABOVE
+
+docker run -d \
+  --net=host \
+  --name=kafka-manager \
+  -p 9000:9000 \
+  -e KM_VERSION=1.3.3.18 \
+  -e ZK_HOSTS="$CONFLUENT_DOCKER_IP:22181,$CONFLUENT_DOCKER_IP:32181,$CONFLUENT_DOCKER_IP:42181" \
+  -e APPLICATION_SECRET=soincrediblyseecret \
+  sheepkiller/kafka-manager
+
+=== Adding the Cluster
+
+Cluster-name: kafka-docker
+Cluster Zookeeper Hosts: 192.168.99.100:22181,192.168.99.100:32181,192.168.99.100:42181
+Enable JMX Polling...: Check
+brokerViewThreadPoolSize: 2
+offsetCacheThreadPoolSize: 2
+kafkaAdminClientThreadPoolSize: 2
+
+//-------------------------------------------------
+
+== Topics
+
+=== Create a Topic
+
+NOTE: SET ENV BELOW
+TEST_TOPIC_NAME=foo
+
+docker run \
+  --net=host \
+  --rm \
+  confluentinc/cp-kafka:5.1.0 \
+  kafka-topics --create \
+    --topic $TEST_TOPIC_NAME \
+    --partitions 1 \
+    --replication-factor 3 \
+    --if-not-exists \
+    --config min.insync.replicas=2 \
+    --zookeeper localhost:32181
+
+
+=== Describe Topic
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:5.1.0 \
+    kafka-topics --describe --topic $TEST_TOPIC_NAME --zookeeper localhost:32181
+
+=== Generate Data to Topic
+docker run \
+  --net=host \
+  --rm confluentinc/cp-kafka:5.1.0 \
+  bash -c "seq 42 | kafka-console-producer --broker-list localhost:29092 --topic $TEST_TOPIC_NAME && echo 'Produced 42 messages.'"
+
+=== Receive Data
+docker run \
+ --net=host \
+ --rm \
+ confluentinc/cp-kafka:5.0.1 \
+ kafka-console-consumer --bootstrap-server localhost:29092 --topic $TEST_TOPIC_NAME --from-beginning --max-messages 42
+
+== Run interactive shell
+== FEL
+
+=== Fel 1
+[2018-12-17 07:31:03,995] INFO [ReplicaFetcher replicaId=1008, leaderId=1007, fetcherId=0] Retrying leaderEpoch request for partition __consumer_offsets-32 as the leader reported an error: UNKNOWN_SERVER_ERROR (kafka.server.ReplicaFetcherThread)
+
+* Löste sig när jag uppdaterade image till 5.1.0
+
+
+
+
+
+=== När jag auto-skapade ett topic fick jag detta på klientsidan
+2018-12-18 09:07:43 DEBUG FetchSessionHandler:421 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Node 1001 sent an incremental fetch response for session 1403653342 with 0 response partition(s), 1 implied partition(s)
+2018-12-18 09:07:43 DEBUG Fetcher:898 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Added READ_UNCOMMITTED fetch request for partition non-existent-topic2-0 at offset 229 to node 192.168.99.100:29092 (id: 1001 rack: null)
+2018-12-18 09:07:43 DEBUG FetchSessionHandler:250 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Built incremental fetch (sessionId=1403653342, epoch=729) for node 1001. Added 0 partition(s), altered 0 partition(s), removed 0 partition(s) out of 1 partition(s)
+2018-12-18 09:07:43 DEBUG Fetcher:218 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Sending READ_UNCOMMITTED IncrementalFetchRequest(toSend=(), toForget=(), implied=(non-existent-topic2-0)) to broker 192.168.99.100:29092 (id: 1001 rack: null)
+2018-12-18 09:07:43 DEBUG FetchSessionHandler:421 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Node 1001 sent an incremental fetch response for session 1403653342 with 0 response partition(s), 1 implied partition(s)
+2018-12-18 09:07:43 DEBUG Fetcher:898 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Added READ_UNCOMMITTED fetch request for partition non-existent-topic2-0 at offset 229 to node 192.168.99.100:29092 (id: 1001 rack: null)
+2018-12-18 09:07:43 DEBUG FetchSessionHandler:250 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Built incremental fetch (sessionId=1403653342, epoch=730) for node 1001. Added 0 partition(s), altered 0 partition(s), removed 0 partition(s) out of 1 partition(s)
+2018-12-18 09:07:43 DEBUG Fetcher:218 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Sending READ_UNCOMMITTED IncrementalFetchRequest(toSend=(), toForget=(), implied=(non-existent-topic2-0)) to broker 192.168.99.100:29092 (id: 1001 rack: null)
+2018-12-18 09:07:44 DEBUG FetchSessionHandler:421 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Node 1001 sent an incremental fetch response for session 1403653342 with 0 response partition(s), 1 implied partition(s)
+2018-12-18 09:07:44 DEBUG Fetcher:898 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Added READ_UNCOMMITTED fetch request for partition non-existent-topic2-0 at offset 229 to node 192.168.99.100:29092 (id: 1001 rack: null)
+2018-12-18 09:07:44 DEBUG FetchSessionHandler:250 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Built incremental fetch (sessionId=1403653342, epoch=731) for node 1001. Added 0 partition(s), altered 0 partition(s), removed 0 partition(s) out of 1 partition(s)
+2018-12-18 09:07:44 DEBUG Fetcher:218 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Sending READ_UNCOMMITTED IncrementalFetchRequest(toSend=(), toForget=(), implied=(non-existent-topic2-0)) to broker 192.168.99.100:29092 (id: 1001 rack: null)
+
+==== Lösning
+Kolla fetch request. Det görs till sista offset i Topicet (229)
+Lägg till följande i consumern:
+props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+props.put("group.id", "dynamic-" + System.currentTimeMillis());
+Note: Båda behövs för att få meddelanden från början
+
+Annars ser man:
+2018-12-18 10:29:31 INFO  org.apache.kafka.clients.consumer.internals.Fetcher:583 - [Consumer clientId=consumer-1, groupId=dynamic-1545125368172] Resetting offset for partition everything-topic-0 to offset 90.
+Notera offset 90, det fanns 90 meddelanden på topicet
+
+
+== Fel 2
+
+[2018-12-19 07:31:09,642] WARN [Producer clientId=producer-1] 1 partitions have leader brokers without a matching listener, including [__confluent.support.metrics-0] (org.apache.kafka.clients.NetworkClient)
