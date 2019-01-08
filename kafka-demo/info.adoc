@@ -1,0 +1,30 @@
+== Confluent Support Metrics
+Proactive Support is a component of the Confluent Platform. It collects and reports support metrics (“Metrics”) to Confluent. Proactive Support is enabled by default in the Confluent Platform. We do this to provide proactive support to our customers, to help us build better products, to help customers comply with support contracts, and to help guide our marketing efforts. With Metrics enabled, a Kafka broker is configured to collect and report certain broker and cluster metadata (“Metadata”) every 24 hours about your use of the Confluent Platform (including without limitation, your remote internet protocol address) to Confluent, Inc. (“Confluent”) or its parent, subsidiaries, affiliates or service providers. This Metadata may be transferred to any country in which Confluent maintains facilities.
+
+By proceeding with Metrics enabled, you agree to all such collection, transfer, storage and use of Metadata by Confluent. You can turn Metrics off at any time by following the instructions described below.
+
+
+https://docs.confluent.io/current/proactive-support.html
+
+=== Disabling Proactive Support
+Add to Docker run command:
+  -e KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE=false
+
+=== From Kafka Log: WARN The package io.confluent.support.metrics.collectors.FullCollector for collecting the full set of support metrics could not be loaded ...
+WARN The package io.confluent.support.metrics.collectors.FullCollector for collecting the full set of support metrics could not be loaded, so we are reverting to anonymous, basic metric collection. If you are a Confluent customer, please refer to the Confluent Platform documentation, section Proactive Support, on how to activate full metrics collection. (io.confluent.support.metrics.KafkaSupportConfig)
+
+From https://docs.confluent.io/current/kafka/metrics-reporter.html:
+By default, the Confluent Metrics Reporter is not enabled. To enable it, you will need to edit each Kafka broker’s server.properties and set the metric.reporters and confluent.metrics.reporter.bootstrap.servers configuration parameters. For the changes to take effect, you will need to perform a rolling restart of the brokers.
+
+
+== Auto-created topics
+=== __consumer_offsets
+https://docs.confluent.io/current/clients/consumer.html
+
+The coordinator of each group is chosen from the leaders of the internal offsets topic __consumer_offsets, which is used to store committed offsets. Basically the group’s ID is hashed to one of the partitions for this topic and the leader of that partition is selected as the coordinator. In this way, management of consumer groups is divided roughly equally across all the brokers in the cluster, which allows the number of groups to scale by increasing the number of brokers.
+
+
+=== _schemas
+https://docs.confluent.io/current/schema-registry/docs/index.html
+
+Kafka is used as Schema Registry storage backend. The special Kafka topic <kafkastore.topic> (default _schemas), with a single partition, is used as a highly available write ahead log. All schemas, subject/version and ID metadata, and compatibility settings are appended as messages to this log. A Schema Registry instance therefore both produces and consumes messages under the _schemas topic. It produces messages to the log when, for example, new schemas are registered under a subject, or when updates to compatibility settings are registered. Schema Registry consumes from the _schemas log in a background thread, and updates its local caches on consumption of each new _schemas message to reflect the newly added schema or compatibility setting. Updating local state from the Kafka log in this manner ensures durability, ordering, and easy recoverability.

@@ -1,5 +1,8 @@
 package se.ryz.kafka.demo;
 
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.ListTopicsOptions;
+import org.apache.kafka.clients.admin.TopicListing;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -19,21 +22,29 @@ import org.junit.Test;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class DemoTest {
 
     private static final String KAFKA_DOCKER_HOST = "192.168.99.100";
 
     public static final String KAFKA_BROKERS =
-            KAFKA_DOCKER_HOST + ":29092" +
+            KAFKA_DOCKER_HOST + ":29092," +
                     KAFKA_DOCKER_HOST + ":39092," +
                     KAFKA_DOCKER_HOST + ":49092";
 
 
     /**
-     * Creates streams consumer configuration properties
+     * Creates streams consumer configuration properties.
+     * Sets up
+     *      Kafka Brokers bootstrap
+     *      Application ID
+     *      Client ID
+     *      Key and Value SerDe (both as String)
+     *      LogAndContinueExeptionHandler
      * @return Consumer properties
      * @param applicationId Unique in the Kafka cluster. A new applicationId -> consume from beginning
      * @param clientId An ID used to trace application activity in Kafka logs
@@ -63,6 +74,14 @@ public class DemoTest {
         return streamsConfiguration;
     }
 
+    /**
+     * sets up a Processor producer
+     *      Processor Client ID
+     *      Kafka Bootstrap servers
+     *      Key and Value SerDes (both as String)
+     * @param clientId
+     * @return
+     */
     private Properties createProcessorProducerProperties(String clientId) {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS);
@@ -73,22 +92,71 @@ public class DemoTest {
         return props;
     }
 
+    /*
+    We do not receive an error, after 60 seconds we get a timeout, but flush does not throw ex
+     */
+
     // -------------------------------------------------------------------------
 
+
     /**
-     * Tries to send messages to a non-existing Topic
+     * Print registered topics to console
+     *
+      * @throws ExecutionException
+     * @throws InterruptedException
      */
     @Test
-    public void testAutoCreateTopicBySendingMessagesToNonExistentTopic() throws InterruptedException {
-        Properties producerProperties = createProcessorProducerProperties("autoCreateProducer");
-        KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
-        ProducerRecord<String, String> record = new ProducerRecord<>("nonexistingtopic", "msgkey", "msgvalue");
-        producer.send(record);
-        producer.flush();
-        System.out.println("Sent record");
-        producer.close();
-        
+    public void describeTopics() throws ExecutionException, InterruptedException {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS);
+        AdminClient adminClient = AdminClient.create(props);
+        adminClient.describeCluster();
+
+        ListTopicsOptions listTopicsOptions = new ListTopicsOptions();
+        listTopicsOptions.listInternal(false);
+        Collection<TopicListing> topicListings = adminClient.listTopics(listTopicsOptions).listings().get();
+        System.out.println("Number of registered topics (without internal): " + topicListings.size());
+        topicListings.stream().forEach(topicListing -> System.out.println("Topic name: '" + topicListing.name() + "', is internal: " + topicListing.isInternal()));listTopicsOptions = new ListTopicsOptions();
+
+        System.out.println();
+
+        listTopicsOptions.listInternal(true);
+        topicListings = adminClient.listTopics(listTopicsOptions).listings().get();
+        System.out.println("Number of registered topics (with internal): " + topicListings.size());
+        topicListings.stream().forEach(topicListing -> System.out.println("Topic name: '" + topicListing.name() + "', is internal: " + topicListing.isInternal()));
     }
+
+
+    // -------------------------------------------------------------------------
+
+    private TopicListing findTopicListingOrNull(String topicName) throws ExecutionException, InterruptedException {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS);
+        AdminClient adminClient = AdminClient.create(props);
+        adminClient.describeCluster();
+
+        ListTopicsOptions listTopicsOptions = new ListTopicsOptions();
+        listTopicsOptions.listInternal(true);
+        Collection<TopicListing> topicListings = adminClient.listTopics(listTopicsOptions).listings().get();
+        TopicListing foundTopicListing = topicListings
+                .stream()
+                .filter(topicListing ->
+                        topicListing.name().equals(topicName)
+                ).findAny()
+                .orElse(null);
+        adminClient.close();
+        return foundTopicListing;
+    }
+
+    @Test
+    public void doesTopicExist() throws ExecutionException, InterruptedException {
+        String topicName = "_schemas";
+        System.out.println("Does topic '" + topicName + "' exist? " + (findTopicListingOrNull(topicName) == null ? "No" : "Yes!"));
+        topicName = "nonexistingtopic";
+        System.out.println("Does topic '" + topicName + "' exist? " + (findTopicListingOrNull(topicName) == null ? "No" : "Yes!"));
+    }
+
+    // -------------------------------------------------------------------------
 
     @Test
     public void testAutoCreateProcessor() throws InterruptedException {
@@ -119,6 +187,7 @@ public class DemoTest {
         new DemoTest();
     }
 
+    /*
     public DemoTest() throws InterruptedException {
         Properties streamsConfiguration = createStreamsConfig(null, "clientId");
 
@@ -130,7 +199,21 @@ public class DemoTest {
         streams.start();
 
     }
+*/
 
+    /**
+     * Tries to send messages to a non-existing Topic
+     */
+    @Test
+    public void testAutoCreateTopicBySendingMessagesToNonExistentTopic() throws InterruptedException {
+        Properties producerProperties = createProcessorProducerProperties("autoCreateProducer");
+        KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
+        ProducerRecord<String, String> record = new ProducerRecord<>("nonexistingtopic", "msgkey", "msgvalue");
+        producer.send(record);
+        producer.flush();
+        System.out.println("Sent record");
+        producer.close();
+    }
     @Test
     public void runE() throws InterruptedException {
 

@@ -22,11 +22,11 @@ https://docs.confluent.io/current/installation/docker/docs/installation/clustere
 // -------------------------------
 
 == Start ==
-=== Start all Kafka containers
-  docker start `docker ps -a | grep kafka- | awk '{print $1}'`
-
 == Start all Zookeepers
 docker start `docker ps -a | grep zk- | awk '{print $1}'`
+
+=== Start all Kafka containers
+  docker start `docker ps -a | grep kafka- | awk '{print $1}'`
 
 == Start a Docker instance
   docker start zk-1
@@ -49,10 +49,15 @@ docker stop `docker ps -a | grep kafka- | awk '{print $1}'`
 === Remove all containers
   docker rm $(docker ps -a -q)
 
-=== Remove all Kafka containers
-  Note: they need to be stopped
-    docker stop `docker ps -a | grep kafka- | awk '{print $1}'`
-    docker rm -v `docker ps -a | grep kafka- | awk '{print $1}'`
+  === Remove all Kafka containers
+    Note: they need to be stopped
+      docker stop `docker ps -a | grep kafka- | awk '{print $1}'`
+      docker rm -v `docker ps -a | grep kafka- | awk '{print $1}'`
+
+  === Remove all Zookeeper containers
+    Note: All containers depend on Zookeeper, so stop all containers first
+      docker stop $(docker ps -a -q)
+      docker rm -v `docker ps -a | grep zk- | awk '{print $1}'`
 
 === Prune docker Volumes and non-running containers
   docker system prune
@@ -61,12 +66,13 @@ docker stop `docker ps -a | grep kafka- | awk '{print $1}'`
 // -------------------------------
 
 == Necessary environment
-NOTE: FIRST OF ALL SET CONFLUENT_DOCKER_IP!!!
+NOTE!!! SET CONFLUENT_DOCKER_IP FOR THE COMMANDS TO WORK
   export CONFLUENT_DOCKER_IP=`docker-machine ip confluent`
 
 == Zookeeper
 
-NOTE!!! SET CONFLUENT_DOCKER_IP AS ABOVE
+NOTE!!! SET CONFLUENT_DOCKER_IP FOR THE COMMANDS TO WORK
+  export CONFLUENT_DOCKER_IP=`docker-machine ip confluent`
 
   docker run -d \
     --net=host \
@@ -117,7 +123,8 @@ done
 
 == Kafka
 
-NOTE!!! SET CONFLUENT_DOCKER_IP AS ABOVE
+NOTE!!! SET CONFLUENT_DOCKER_IP FOR THE COMMANDS TO WORK
+  export CONFLUENT_DOCKER_IP=`docker-machine ip confluent`
 
   docker run -d \
     --net=host \
@@ -128,6 +135,7 @@ NOTE!!! SET CONFLUENT_DOCKER_IP AS ABOVE
     -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://$CONFLUENT_DOCKER_IP:29092 \
     -e KAFKA_MIN_INSYNC_REPLICAS=2 \
     -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false \
+    -e KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE=false \
     confluentinc/cp-kafka:5.1.0
 
 docker run -d \
@@ -139,6 +147,7 @@ docker run -d \
   -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://$CONFLUENT_DOCKER_IP:39092 \
   -e KAFKA_MIN_INSYNC_REPLICAS=2 \
   -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false \
+  -e KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE=false \
   confluentinc/cp-kafka:5.1.0
 
   docker run -d \
@@ -150,13 +159,15 @@ docker run -d \
     -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://$CONFLUENT_DOCKER_IP:49092 \
     -e KAFKA_MIN_INSYNC_REPLICAS=2 \
     -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false \
+    -e KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE=false \
     confluentinc/cp-kafka:5.1.0
 
 //-------------------------------------------------
 
 == Schema Registry
 
-NOTE!!! SET CONFLUENT_DOCKER_IP AS ABOVE
+NOTE!!! SET CONFLUENT_DOCKER_IP FOR THE COMMANDS TO WORK
+  export CONFLUENT_DOCKER_IP=`docker-machine ip confluent`
 
   docker run -d \
     --net=host \
@@ -173,7 +184,8 @@ NOTE!!! SET CONFLUENT_DOCKER_IP AS ABOVE
 
 == Kafka Manager
 
-NOTE!!! SET CONFLUENT_DOCKER_IP AS ABOVE
+NOTE!!! SET CONFLUENT_DOCKER_IP FOR THE COMMANDS TO WORK
+  export CONFLUENT_DOCKER_IP=`docker-machine ip confluent`
 
 docker run -d \
   --net=host \
@@ -214,6 +226,12 @@ docker run \
     --config min.insync.replicas=2 \
     --zookeeper localhost:32181
 
+=== List Topics
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:5.1.0 \
+    kafka-topics --list --zookeeper localhost:32181
 
 === Describe Topic
 docker run \
@@ -276,3 +294,19 @@ Notera offset 90, det fanns 90 meddelanden på topicet
 == Fel 2
 
 [2018-12-19 07:31:09,642] WARN [Producer clientId=producer-1] 1 partitions have leader brokers without a matching listener, including [__confluent.support.metrics-0] (org.apache.kafka.clients.NetworkClient)
+
+== Fel 3
+$ docker-machine env confluent
+Error checking TLS connection: Host is not running
+
+=== Lösning
+Körde
+$ docker-machine restart confluent
+
+När jag körde
+$ docker-machine ls
+NAME        ACTIVE   DRIVER       STATE     URL   SWARM   DOCKER    ERRORS
+confluent   -        virtualbox   Stopped                 Unknown
+
+Så står det iofs att "STATE" är "Stopped". Kanske räcker det med 'start' istället för 'restart' i
+docker-machine-kommandot
