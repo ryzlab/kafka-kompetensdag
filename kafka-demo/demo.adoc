@@ -310,3 +310,20 @@ confluent   -        virtualbox   Stopped                 Unknown
 
 Så står det iofs att "STATE" är "Stopped". Kanske räcker det med 'start' istället för 'restart' i
 docker-machine-kommandot
+
+== Fel 3
+När man kör
+$ docker-machine create --driver virtualbox --virtualbox-memory 6000 confluent
+får man
+...
+ubuntu 18.04 "VBoxManage not found. Make sure VirtualBox is installed and VBoxManage is in the path"
+...
+
+Lösning:
+Laddade hem docker-machine från
+https://github.com/docker/machine/releases/tag/v0.16.0
+Döpte om, chmoddade och kopierade in till rätt ställe
+$ chmod 755 docker-machine-Linux-x86_64
+$ sudo mv docker-machine-Linux-x86_64 /usr/local/bin/docker-machine
+
+Nu funkade docker-machine create-kommandot!!
