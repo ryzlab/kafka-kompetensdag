@@ -148,6 +148,8 @@ public class DemoTest {
         return foundTopicListing;
     }
 
+    // -------------------------------------------------------------------------
+
     @Test
     public void doesTopicExist() throws ExecutionException, InterruptedException {
         String topicName = "_schemas";

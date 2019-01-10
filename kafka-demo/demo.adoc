@@ -223,7 +223,7 @@ kafkaAdminClientThreadPoolSize: 2
 
 IMPORTANT: SET ENV BELOW
 
- TEST_TOPIC_NAME=foo
+ TOPIC_NAME=foo
 
 ....
 docker run \
@@ -231,7 +231,7 @@ docker run \
   --rm \
   confluentinc/cp-kafka:5.1.0 \
   kafka-topics --create \
-    --topic $TEST_TOPIC_NAME \
+    --topic $TOPIC_NAME \
     --partitions 1 \
     --replication-factor 3 \
     --if-not-exists \
@@ -253,107 +253,21 @@ docker run \
     --net=host \
     --rm \
     confluentinc/cp-kafka:5.1.0 \
-    kafka-topics --describe --topic $TEST_TOPIC_NAME --zookeeper localhost:32181
+    kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:32181
 ....
 === Generate Data to Topic
 ....
 docker run \
   --net=host \
   --rm confluentinc/cp-kafka:5.1.0 \
-  bash -c "seq 42 | kafka-console-producer --broker-list localhost:29092 --topic $TEST_TOPIC_NAME && echo 'Produced 42 messages.'"
+  bash -c "seq 42 | kafka-console-producer --broker-list localhost:29092 --topic $TOPIC_NAME && echo 'Produced 42 messages.'"
 ....
 === Receive Data
 ....
 docker run \
  --net=host \
  --rm \
- confluentinc/cp-kafka:5.0.1 \
- kafka-console-consumer --bootstrap-server localhost:29092 --topic $TEST_TOPIC_NAME --from-beginning --max-messages 42
+ confluentinc/cp-kafka:5.1.0 \
+ kafka-console-consumer --bootstrap-server localhost:29092 --topic $TOPIC_NAME --from-beginning --max-messages 42
 ....
 == Run interactive shell
-== FEL
-
-=== Fel 1
- [2018-12-17 07:31:03,995] INFO [ReplicaFetcher replicaId=1008, leaderId=1007, fetcherId=0] Retrying leaderEpoch request for partition __consumer_offsets-32 as the leader reported an error: UNKNOWN_SERVER_ERROR (kafka.server.ReplicaFetcherThread)
-
-* Löste sig när jag uppdaterade image till 5.1.0
-
-
-
-
-
-=== När jag auto-skapade ett topic fick jag detta på klientsidan
-....
-2018-12-18 09:07:43 DEBUG FetchSessionHandler:421 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Node 1001 sent an incremental fetch response for session 1403653342 with 0 response partition(s), 1 implied partition(s)
-2018-12-18 09:07:43 DEBUG Fetcher:898 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Added READ_UNCOMMITTED fetch request for partition non-existent-topic2-0 at offset 229 to node 192.168.99.100:29092 (id: 1001 rack: null)
-2018-12-18 09:07:43 DEBUG FetchSessionHandler:250 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Built incremental fetch (sessionId=1403653342, epoch=729) for node 1001. Added 0 partition(s), altered 0 partition(s), removed 0 partition(s) out of 1 partition(s)
-2018-12-18 09:07:43 DEBUG Fetcher:218 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Sending READ_UNCOMMITTED IncrementalFetchRequest(toSend=(), toForget=(), implied=(non-existent-topic2-0)) to broker 192.168.99.100:29092 (id: 1001 rack: null)
-2018-12-18 09:07:43 DEBUG FetchSessionHandler:421 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Node 1001 sent an incremental fetch response for session 1403653342 with 0 response partition(s), 1 implied partition(s)
-2018-12-18 09:07:43 DEBUG Fetcher:898 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Added READ_UNCOMMITTED fetch request for partition non-existent-topic2-0 at offset 229 to node 192.168.99.100:29092 (id: 1001 rack: null)
-2018-12-18 09:07:43 DEBUG FetchSessionHandler:250 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Built incremental fetch (sessionId=1403653342, epoch=730) for node 1001. Added 0 partition(s), altered 0 partition(s), removed 0 partition(s) out of 1 partition(s)
-2018-12-18 09:07:43 DEBUG Fetcher:218 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Sending READ_UNCOMMITTED IncrementalFetchRequest(toSend=(), toForget=(), implied=(non-existent-topic2-0)) to broker 192.168.99.100:29092 (id: 1001 rack: null)
-2018-12-18 09:07:44 DEBUG FetchSessionHandler:421 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Node 1001 sent an incremental fetch response for session 1403653342 with 0 response partition(s), 1 implied partition(s)
-2018-12-18 09:07:44 DEBUG Fetcher:898 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Added READ_UNCOMMITTED fetch request for partition non-existent-topic2-0 at offset 229 to node 192.168.99.100:29092 (id: 1001 rack: null)
-2018-12-18 09:07:44 DEBUG FetchSessionHandler:250 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Built incremental fetch (sessionId=1403653342, epoch=731) for node 1001. Added 0 partition(s), altered 0 partition(s), removed 0 partition(s) out of 1 partition(s)
-2018-12-18 09:07:44 DEBUG Fetcher:218 - [Consumer clientId=consumer-1, groupId=autocreateconsumer2] Sending READ_UNCOMMITTED IncrementalFetchRequest(toSend=(), toForget=(), implied=(non-existent-topic2-0)) to broker 192.168.99.100:29092 (id: 1001 rack: null)
-....
-==== Lösning
-Kolla fetch request. Det görs till sista offset i Topicet (229)
-
-Lägg till följande i consumern:
-....
-props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-props.put("group.id", "dynamic-" + System.currentTimeMillis());
-Note: Båda behövs för att få meddelanden från början
-....
-
-Annars ser man:
-
- 2018-12-18 10:29:31 INFO  org.apache.kafka.clients.consumer.internals.Fetcher:583 - [Consumer clientId=consumer-1, groupId=dynamic-1545125368172] Resetting offset for partition everything-topic-0 to offset 90.
-
-Notera offset 90, det fanns 90 meddelanden på topicet
-
-
-== Fel 2
-
- [2018-12-19 07:31:09,642] WARN [Producer clientId=producer-1] 1 partitions have leader brokers without a matching listener, including [__confluent.support.metrics-0] (org.apache.kafka.clients.NetworkClient)
-
-== Fel 3
- $ docker-machine env confluent
- Error checking TLS connection: Host is not running
-
-=== Lösning
-Körde
-
- $ docker-machine restart confluent
-
-När jag körde
-
- $ docker-machine ls
- NAME        ACTIVE   DRIVER       STATE     URL   SWARM   DOCKER    ERRORS
- confluent   -        virtualbox   Stopped                 Unknown
-
-Så står det iofs att "STATE" är "Stopped". Kanske räcker det med 'start' istället för 'restart' i
-docker-machine-kommandot
-
-== Fel 3
-När man kör
-
- $ docker-machine create --driver virtualbox --virtualbox-memory 6000 confluent
-
-får man
-
- ...
- ubuntu 18.04 "VBoxManage not found. Make sure VirtualBox is installed and VBoxManage is in the path"
- ...
-
-Lösning:
-
-Laddade hem docker-machine från
-https://github.com/docker/machine/releases/tag/v0.16.0
-Döpte om, chmoddade och kopierade in till rätt ställe
-
- $ chmod 755 docker-machine-Linux-x86_64
- $ sudo mv docker-machine-Linux-x86_64 /usr/local/bin/docker-machine
-
-Nu funkade docker-machine create-kommandot!!
