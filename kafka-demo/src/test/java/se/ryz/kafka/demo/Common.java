@@ -113,5 +113,30 @@ public class Common {
         }
     }
 
+    public Properties createStreamsClientConfiguration(String applicationId, String clientId) {
+        final Properties streamsConfiguration = new Properties();
+        // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
+        // against which the application is run. A new Application ID -> consume from beginning
+        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId);
+
+        // Client ID:
+        // An optional identifier of a Kafka consumer (in a consumer group) that is passed to a Kafka broker with every request.
+        // The sole purpose of this is to be able to track the source of requests beyond just ip and port by allowing a logical application name to be included in Kafka logs and monitoring aggregates.
+        if (clientId != null) {
+            streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, clientId);
+        }
+
+        // Where to find Kafka broker(s).
+        streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS);
+
+        // Specify default (de)serializers for record keys and for record values.
+        streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        streamsConfiguration.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class);
+        // If we do not commit and restart, we will get messages since last commit again when we restart
+        streamsConfiguration.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, "5000");
+        return streamsConfiguration;
+    }
+
 
 }

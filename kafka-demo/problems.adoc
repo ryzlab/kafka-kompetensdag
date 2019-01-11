@@ -89,3 +89,53 @@ Streams Consumer får inga meddelanden
 måste komma före
 
     final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
+
+== Stacktrace
+
+Om man har samma application-id för två applikationer som inte är samma applikation,
+dvs de konsumerar inte från samma topics mm
+
+2019-01-11 09:24:06 INFO  org.apache.kafka.clients.consumer.internals.AbstractCoordinator:486 - [Consumer clientId=application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1-consumer, groupId=application1] (Re-)joining group
+2019-01-11 09:24:06 DEBUG org.apache.kafka.streams.processor.internals.InternalTopologyBuilder:1875 - stream-thread [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1] found [counter-topic] topics possibly matching regex
+2019-01-11 09:24:06 DEBUG org.apache.kafka.streams.processor.internals.InternalTopologyBuilder:1233 - stream-thread [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1] updating builder with SubscriptionUpdates{updatedTopicSubscriptions=[counter-topic]} topic(s) with possible matching regex subscription(s)
+2019-01-11 09:24:12 INFO  org.apache.kafka.clients.consumer.internals.AbstractCoordinator:486 - [Consumer clientId=application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1-consumer, groupId=application1] (Re-)joining group
+2019-01-11 09:24:12 INFO  org.apache.kafka.clients.consumer.internals.AbstractCoordinator:450 - [Consumer clientId=application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1-consumer, groupId=application1] Successfully joined group with generation 3
+2019-01-11 09:24:12 ERROR org.apache.kafka.streams.processor.internals.StreamThread:755 - stream-thread [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1] Encountered the following error during processing:
+java.lang.IllegalArgumentException: Assigned partition stats-topic-1 for non-subscribed topic regex pattern; subscription pattern is application1-KSTREAM-AGGREGATE-STATE-STORE-0000000002-repartition|counter-topic
+	at org.apache.kafka.clients.consumer.internals.SubscriptionState.assignFromSubscribed(SubscriptionState.java:187)
+	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.onJoinComplete(ConsumerCoordinator.java:250)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.joinGroupIfNeeded(AbstractCoordinator.java:406)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.ensureActiveGroup(AbstractCoordinator.java:340)
+	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.poll(ConsumerCoordinator.java:341)
+	at org.apache.kafka.clients.consumer.KafkaConsumer.updateAssignmentMetadataIfNeeded(KafkaConsumer.java:1214)
+	at org.apache.kafka.clients.consumer.KafkaConsumer.poll(KafkaConsumer.java:1179)
+	at org.apache.kafka.clients.consumer.KafkaConsumer.poll(KafkaConsumer.java:1164)
+	at org.apache.kafka.streams.processor.internals.StreamThread.pollRequests(StreamThread.java:913)
+	at org.apache.kafka.streams.processor.internals.StreamThread.runOnce(StreamThread.java:818)
+	at org.apache.kafka.streams.processor.internals.StreamThread.runLoop(StreamThread.java:777)
+	at org.apache.kafka.streams.processor.internals.StreamThread.run(StreamThread.java:747)
+2019-01-11 09:24:12 INFO  org.apache.kafka.streams.processor.internals.StreamThread:207 - stream-thread [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1] State transition from PARTITIONS_REVOKED to PENDING_SHUTDOWN
+2019-01-11 09:24:12 INFO  org.apache.kafka.streams.processor.internals.StreamThread:1178 - stream-thread [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1] Shutting down
+2019-01-11 09:24:12 DEBUG org.apache.kafka.streams.processor.internals.TaskManager:256 - stream-thread [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1] Shutting down all active tasks [], standby tasks [], suspended tasks [], and suspended standby tasks []
+2019-01-11 09:24:12 INFO  org.apache.kafka.clients.consumer.KafkaConsumer:1031 - [Consumer clientId=application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1-restore-consumer, groupId=] Unsubscribed all topics or patterns and assigned partitions
+2019-01-11 09:24:12 INFO  org.apache.kafka.clients.producer.KafkaProducer:1136 - [Producer clientId=application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1-producer] Closing the Kafka producer with timeoutMillis = 9223372036854775807 ms.
+2019-01-11 09:24:12 DEBUG org.apache.kafka.clients.producer.internals.Sender:239 - [Producer clientId=application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1-producer] Beginning shutdown of Kafka producer I/O thread, sending remaining records.
+2019-01-11 09:24:12 DEBUG org.apache.kafka.clients.producer.internals.Sender:263 - [Producer clientId=application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1-producer] Shutdown of Kafka producer I/O thread has completed.
+2019-01-11 09:24:12 DEBUG org.apache.kafka.clients.producer.KafkaProducer:1181 - [Producer clientId=application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1-producer] Kafka producer has been closed
+Exception in thread "application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1" java.lang.IllegalArgumentException: Assigned partition stats-topic-1 for non-subscribed topic regex pattern; subscription pattern is application1-KSTREAM-AGGREGATE-STATE-STORE-0000000002-repartition|counter-topic
+	at org.apache.kafka.clients.consumer.internals.SubscriptionState.assignFromSubscribed(SubscriptionState.java:187)
+	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.onJoinComplete(ConsumerCoordinator.java:250)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.joinGroupIfNeeded(AbstractCoordinator.java:406)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.ensureActiveGroup(AbstractCoordinator.java:340)
+	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.poll(ConsumerCoordinator.java:341)
+	at org.apache.kafka.clients.consumer.KafkaConsumer.updateAssignmentMetadataIfNeeded(KafkaConsumer.java:1214)
+	at org.apache.kafka.clients.consumer.KafkaConsumer.poll(KafkaConsumer.java:1179)
+	at org.apache.kafka.clients.consumer.KafkaConsumer.poll(KafkaConsumer.java:1164)
+	at org.apache.kafka.streams.processor.internals.StreamThread.pollRequests(StreamThread.java:913)
+	at org.apache.kafka.streams.processor.internals.StreamThread.runOnce(StreamThread.java:818)
+	at org.apache.kafka.streams.processor.internals.StreamThread.runLoop(StreamThread.java:777)
+	at org.apache.kafka.streams.processor.internals.StreamThread.run(StreamThread.java:747)
+2019-01-11 09:24:12 INFO  org.apache.kafka.streams.processor.internals.StreamThread:207 - stream-thread [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1] State transition from PENDING_SHUTDOWN to DEAD
+2019-01-11 09:24:12 INFO  org.apache.kafka.streams.KafkaStreams:257 - stream-client [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40] State transition from REBALANCING to ERROR
+2019-01-11 09:24:12 WARN  org.apache.kafka.streams.KafkaStreams:418 - stream-client [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40] All stream threads have died. The instance will be in error state and should be closed.
+2019-01-11 09:24:12 INFO  org.apache.kafka.streams.processor.internals.StreamThread:1198 - stream-thread [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1] Shutdown complete

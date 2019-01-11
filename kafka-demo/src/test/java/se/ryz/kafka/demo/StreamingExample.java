@@ -25,20 +25,20 @@ import java.util.concurrent.Future;
 
  TOPIC_NAME=streaming-example-topic
 
- # Delete old Topic
+ # Delete Topic if it exists
  docker run \
  --net=host \
  --rm \
  confluentinc/cp-kafka:5.1.0 \
  kafka-topics --delete \
+ --if-exists \
  --topic $TOPIC_NAME \
  --zookeeper $CONFLUENT_DOCKER_IP:32181
 
- # Create Topic(s) for Lab
+
+ # Create Topic
  PARTITION_COUNT=2
  REPLICATION_FACTOR=1
-
-
  docker run \
  --net=host \
  --rm \
@@ -68,7 +68,6 @@ public class StreamingExample {
 
     @Test
     public void produceMessages() throws ExecutionException, InterruptedException {
-
         Properties producerProperties = new Properties();
         producerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers);
         producerProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
@@ -110,8 +109,8 @@ public class StreamingExample {
         // In the subsequent lines we define the processing topology of the Streams application.
         final StreamsBuilder builder = new StreamsBuilder();
 
-        final KStream<String, String> textLines = builder.stream(TOPIC_NAME);
-        textLines.foreach((key, value) -> System.out.println("Key: " + key + ", value: " + value));
+        final KStream<String, String> producedMessages = builder.stream(TOPIC_NAME);
+        producedMessages.foreach((key, value) -> System.out.println("Key: " + key + ", value: " + value));
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
         streams.start();

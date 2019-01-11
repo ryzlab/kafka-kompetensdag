@@ -22,12 +22,13 @@ Create a Topic with two partitions
 
  TOPIC_NAME=reprocess-messages-topic
 
- # Delete old Topic if present
+  # Delete Topic if it exists
  docker run \
  --net=host \
  --rm \
  confluentinc/cp-kafka:5.1.0 \
  kafka-topics --delete \
+ --if-exists \
  --topic $TOPIC_NAME \
  --zookeeper $CONFLUENT_DOCKER_IP:32181
 

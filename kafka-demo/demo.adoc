@@ -239,7 +239,7 @@ docker run \
     --zookeeper localhost:32181
 ....
 
-=== List Topics
+=== List Topics including internal topics
 ....
 docker run \
     --net=host \
@@ -247,6 +247,39 @@ docker run \
     confluentinc/cp-kafka:5.1.0 \
     kafka-topics --list --zookeeper localhost:32181
 ....
+
+=== List Topics without internal topics
+....
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:5.1.0 \
+    kafka-topics --list --exclude-internal --zookeeper localhost:32181
+....
+
+=== Remove all Topics but keep internal topics
+....
+
+CONFLUENT_DOCKER_IP=`docker-machine ip confluent`
+
+for TOPIC_NAME in \
+`docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:5.1.0 \
+    kafka-topics --list --exclude-internal --zookeeper localhost:32181`
+do
+    docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:5.1.0 \
+    kafka-topics --delete \
+    --topic $TOPIC_NAME \
+    --zookeeper $CONFLUENT_DOCKER_IP:32181
+done
+
+....
+
 === Describe Topic
 ....
 docker run \
