@@ -23,7 +23,7 @@ https://docs.confluent.io/current/installation/docker/docs/installation/clustere
 
 == Start ==
 === Start all Zookeepers
-docker start `docker ps -a | grep zk- | awk '{print $1}'`
+  docker start `docker ps -a | grep zk- | awk '{print $1}'`
 
 === Start all Kafka containers
   docker start `docker ps -a | grep kafka- | awk '{print $1}'`
@@ -38,7 +38,7 @@ docker start `docker ps -a | grep zk- | awk '{print $1}'`
   docker stop $(docker ps -a -q)
 
 === Stop all Zookeepers
-docker stop `docker ps -a | grep zk- | awk '{print $1}'`
+  docker stop `docker ps -a | grep zk- | awk '{print $1}'`
 
 === Stop all Kafka instances
 docker stop `docker ps -a | grep kafka- | awk '{print $1}'`
