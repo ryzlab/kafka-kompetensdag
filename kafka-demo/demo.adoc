@@ -74,6 +74,10 @@ IMPORTANT: Set `CONFLUENT_DOCKER_IP` For the commands below to work
 
 IMPORTANT: Set `CONFLUENT_DOCKER_IP` For the commands below to work
 
+ZOOKEEPER_SERVERS -> leaderport:electionport (source: https://docs.confluent.io/current/zookeeper/deployment.html)
+leaderport is used by followers to connect to the active leader. This port should be open between all ZooKeeper ensemble members.
+electionport is used to perform leader elections between ensemble members. This port should be open between all ZooKeeper ensemble members.
+
 `export CONFLUENT_DOCKER_IP=`docker-machine ip confluent``
 ....
   docker run -d \
