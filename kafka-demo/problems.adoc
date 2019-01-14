@@ -190,3 +190,5 @@ containrarna kör på en virtuell maskin
 referens:
 https://docs.docker.com/docker-for-mac/networking/
 
+== Första gången docker container startas med nytt IP
+Error getting IP address: Host is not running
