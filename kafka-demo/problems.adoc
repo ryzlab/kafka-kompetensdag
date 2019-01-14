@@ -139,3 +139,54 @@ Exception in thread "application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThr
 2019-01-11 09:24:12 INFO  org.apache.kafka.streams.KafkaStreams:257 - stream-client [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40] State transition from REBALANCING to ERROR
 2019-01-11 09:24:12 WARN  org.apache.kafka.streams.KafkaStreams:418 - stream-client [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40] All stream threads have died. The instance will be in error state and should be closed.
 2019-01-11 09:24:12 INFO  org.apache.kafka.streams.processor.internals.StreamThread:1198 - stream-thread [application1-a2d06eb5-1a51-4b66-9d9b-629e37ca7a40-StreamThread-1] Shutdown complete
+
+
+== IP Problem i Docker
+
+....
+Körde ZooKeeper:
+$   docker run -d \
+>     --name=zk-1 \
+>     --net=host \
+>     -e ZOOKEEPER_SERVER_ID=1 \
+>     -e ZOOKEEPER_CLIENT_PORT=22181 \
+>     -e KAFKA_JMX_PORT=29999 \
+>     -e KAFKA_JMX_HOSTNAME=localhost \
+>     -e ZOOKEEPER_TICK_TIME=2000 \
+>     -e ZOOKEEPER_INIT_LIMIT=5 \
+>     -e ZOOKEEPER_SYNC_LIMIT=2 \
+>     -e ZOOKEEPER_SERVERS="localhost:22888:23888;localhost:32888:33888;localhost:42888:43888" \
+>     confluentinc/cp-zookeeper:5.1.0
+fca46874c504cc9286195e5aea7242e39b88e72935c6a7115d5b18ea9fa9fd21
+Tallahassee:Downloads mats$ docker logs zk-1
+
+...
+
+1===> Launching zookeeper ...
+Error: Exception thrown by the agent : java.net.MalformedURLException: Local host name unknown: java.net.UnknownHostException: linuxkit-025000000001: linuxkit-025000000001: Name or service not known
+sun.management.AgentConfigurationError: java.net.MalformedURLException: Local host name unknown: java.net.UnknownHostException: linuxkit-025000000001: linuxkit-025000000001: Name or service not known
+	at sun.management.jmxremote.ConnectorBootstrap.startRemoteConnectorServer(ConnectorBootstrap.java:480)
+	at sun.management.Agent.startAgent(Agent.java:262)
+	at sun.management.Agent.startAgent(Agent.java:452)
+Caused by: java.net.MalformedURLException: Local host name unknown: java.net.UnknownHostException: linuxkit-025000000001: linuxkit-025000000001: Name or service not known
+	at javax.management.remote.JMXServiceURL.<init>(JMXServiceURL.java:289)
+	at javax.management.remote.JMXServiceURL.<init>(JMXServiceURL.java:253)
+	at sun.management.jmxremote.ConnectorBootstrap.exportMBeanServer(ConnectorBootstrap.java:739)
+	at sun.management.jmxremote.ConnectorBootstrap.startRemoteConnectorServer(ConnectorBootstrap.java:468)
+	... 2 more
+....
+
+Lösning: La till linuxkit-025000000001 i /etc/hosts:
+
+....
+127.0.0.1       localhost linuxkit-025000000001
+....
+
+== Kan inte connecta till kafka-manager på port 9000
+
+Contaiers i Docker för mac kan inte forwarda portar eftersom
+containrarna kör på en virtuell maskin
+
+referens:
+https://docs.docker.com/docker-for-mac/networking/
+
