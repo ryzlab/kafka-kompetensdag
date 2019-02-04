@@ -65,6 +65,9 @@ docker stop `docker ps -a | grep kafka- | awk '{print $1}'`
 
 // -------------------------------
 
+
+
+
 == Necessary environment
 IMPORTANT: Set `CONFLUENT_DOCKER_IP` For the commands below to work
 
@@ -101,6 +104,7 @@ docker network create --subnet=172.18.0.0/16 confluentnet
     -e ZOOKEEPER_SYNC_LIMIT=2 \
     -e ZOOKEEPER_SERVERS="172.18.0.10:22888:23888;172.18.0.11:32888:33888;172.18.0.12:42888:43888" \
     confluentinc/cp-zookeeper:5.1.0
+
 ....
 ....
   docker run -d \
@@ -120,9 +124,10 @@ docker network create --subnet=172.18.0.0/16 confluentnet
     -e ZOOKEEPER_SYNC_LIMIT=2 \
     -e ZOOKEEPER_SERVERS="172.18.0.10:22888:23888;172.18.0.11:32888:33888;172.18.0.12:42888:43888" \
     confluentinc/cp-zookeeper:5.1.0
+
 ....
 ....
-docker run -d \
+  docker run -d \
     -p 42181:42181 \
     -p 49999:49999 \
     -p 42888:42888 \
@@ -139,6 +144,7 @@ docker run -d \
    -e ZOOKEEPER_SYNC_LIMIT=2 \
    -e ZOOKEEPER_SERVERS="172.18.0.10:22888:23888;172.18.0.11:32888:33888;172.18.0.12:42888:43888" \
    confluentinc/cp-zookeeper:5.1.0
+
 ....
 === Check ZooKeeper
 
