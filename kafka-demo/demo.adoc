@@ -252,7 +252,7 @@ docker run -d \
 === Adding the Cluster
 ....
 Cluster-name: kafka-docker
-Cluster Zookeeper Hosts: 192.168.99.100:22181,192.168.99.100:32181,192.168.99.100:42181
+Cluster Zookeeper Hosts: 172.18.0.10:22181,172.18.0.11:32181,172.18.0.12:42181
 Enable JMX Polling...: Check
 brokerViewThreadPoolSize: 2
 offsetCacheThreadPoolSize: 2

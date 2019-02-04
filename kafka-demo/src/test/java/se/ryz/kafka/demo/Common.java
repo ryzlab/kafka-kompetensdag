@@ -27,9 +27,11 @@ public class Common {
     private static final String KAFKA_DOCKER_HOST = "192.168.99.100";
 
     public static final String KAFKA_BROKERS =
-            KAFKA_DOCKER_HOST + ":29092," +
-                    KAFKA_DOCKER_HOST + ":39092," +
-                    KAFKA_DOCKER_HOST + ":49092";
+            "172.18.0.20:29092," +
+                    "172.18.0.21:39092," +
+                    "172.18.0.22:49092";
+
+    public static final String SCHEMA_REGISTRY_URL = "172.18.0.40:8081";
 
 
     public Properties createConsumerConfig(String groupId, String clientId) {
@@ -49,7 +51,6 @@ public class Common {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return props;
     }
-
 
     /**
      * sets up a Processor producer
