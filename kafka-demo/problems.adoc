@@ -189,4 +189,5 @@ containrarna kör på en virtuell maskin
 
 referens:
 https://docs.docker.com/docker-for-mac/networking/
+https://forums.docker.com/t/should-docker-run-net-host-work/14215/6
 
