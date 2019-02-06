@@ -1,0 +1,133 @@
+version: "3"
+services:
+  zk-1:
+    container_name: "zk-1"
+    image: confluentinc/cp-zookeeper:5.1.0
+    ports:
+      - "22181:22181"
+      - "29999:29999"
+      - "22888:22888"
+      - "23888:23888"
+    environment:
+      ZOOKEEPER_SERVER_ID: "1"
+      ZOOKEEPER_CLIENT_PORT: "22181"
+      ZOOKEEPER_TICK_TIME: "2000"
+      ZOOKEEPER_INIT_LIMIT: "5"
+      ZOOKEEPER_SYNC_LIMIT: "2"
+      ZOOKEEPER_SERVERS: "zk-1:22888:23888;zk-2:32888:33888;zk-3:42888:43888"
+
+  zk-2:
+    container_name: "zk-2"
+    image: confluentinc/cp-zookeeper:5.1.0
+    ports:
+      - "32181:32181"
+      - "39999:39999"
+      - "32888:32888"
+      - "33888:33888"
+    environment:
+      ZOOKEEPER_SERVER_ID: "2"
+      ZOOKEEPER_CLIENT_PORT: "32181"
+      ZOOKEEPER_TICK_TIME: "2000"
+      ZOOKEEPER_INIT_LIMIT: "5"
+      ZOOKEEPER_SYNC_LIMIT: "2"
+      ZOOKEEPER_SERVERS: "zk-1:22888:23888;zk-2:32888:33888;zk-3:42888:43888"
+
+  zk-3:
+    container_name: "zk-3"
+    image: confluentinc/cp-zookeeper:5.1.0
+    ports:
+      - "42181:42181"
+      - "49999:49999"
+      - "42888:42888"
+      - "43888:43888"
+    environment:
+      ZOOKEEPER_SERVER_ID: "3"
+      ZOOKEEPER_CLIENT_PORT: "42181"
+      ZOOKEEPER_TICK_TIME: "2000"
+      ZOOKEEPER_INIT_LIMIT: "5"
+      ZOOKEEPER_SYNC_LIMIT: "2"
+      ZOOKEEPER_SERVERS: "zk-1:22888:23888;zk-2:32888:33888;zk-3:42888:43888"
+
+  kafka-1:
+    container_name: "kafka-1"
+    image: confluentinc/cp-kafka:5.1.0
+    ports:
+        - "60001:60001"
+        - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: "1"
+      KAFKA_JMX_PORT: "60001"
+      KAFKA_JMX_HOSTNAME: "kafka-1"
+      KAFKA_ZOOKEEPER_CONNECT: "zk-1:22181,zk-2:32181,zk-3:42181"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-1:29092"
+      KAFKA_MIN_INSYNC_REPLICAS: "2"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+    depends_on:
+      - "zk-1"
+      - "zk-2"
+      - "zk-3"
+
+  kafka-2:
+    container_name: "kafka-2"
+    image: confluentinc/cp-kafka:5.1.0
+    ports:
+      - "60002:60002"
+      - "39092:39092"
+    environment:
+      KAFKA_BROKER_ID: "2"
+      KAFKA_JMX_PORT: "60002"
+      KAFKA_JMX_HOSTNAME: "kafka-1"
+      KAFKA_ZOOKEEPER_CONNECT: "zk-1:22181,zk-2:32181,zk-3:42181"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-2:39092"
+      KAFKA_MIN_INSYNC_REPLICAS: "2"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+    depends_on:
+      - "zk-1"
+      - "zk-2"
+      - "zk-3"
+
+  kafka-3:
+    container_name: "kafka-3"
+    image: confluentinc/cp-kafka:5.1.0
+    ports:
+      - "60003:60003"
+      - "49092:49092"
+    environment:
+      KAFKA_BROKER_ID: "3"
+      KAFKA_JMX_PORT: "60003"
+      KAFKA_JMX_HOSTNAME: "kafka-1"
+      KAFKA_ZOOKEEPER_CONNECT: "zk-1:22181,zk-2:32181,zk-3:42181"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-3:49092"
+      KAFKA_MIN_INSYNC_REPLICAS: "2"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+    depends_on:
+      - "zk-1"
+      - "zk-2"
+      - "zk-3"
+
+
+  kafka-manager:
+    container_name: "kafka-manager"
+    image: sheepkiller/kafka-manager
+    ports:
+      - "9000:9000"
+    environment:
+      KM_VERSION: "1.3.3.18"
+      ZK_HOSTS: "zk-1:22181,zk-2:32181,zk-3:42181"
+      APPLICATION_SECRET: "soincrediblyseecret"
+    depends_on:
+      - "kafka-1"
+      - "kafka-2"
+      - "kafka-3"
+
+  schema-registry:
+    container_name: "schema-registry"
+    image: confluentinc/cp-schema-registry:5.1.0
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zk-1:22181,zk-2:32181,zk-3:42181"
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
