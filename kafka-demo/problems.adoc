@@ -191,3 +191,5 @@ referens:
 https://docs.docker.com/docker-for-mac/networking/
 https://forums.docker.com/t/should-docker-run-net-host-work/14215/6
 
+== Första gången docker container startas med nytt IP
+Error getting IP address: Host is not running

@@ -68,10 +68,8 @@ public class StreamingExample {
 
     @Test
     public void produceMessages() throws ExecutionException, InterruptedException {
-        Properties producerProperties = new Properties();
-        producerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers);
-        producerProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        producerProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        Common common = new Common();
+        Properties producerProperties = common.createProcessorProducerProperties(this.getClass().getName() + "-producer-client");
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
         for (int cnt=0; ;cnt++) {
             ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, null, Integer.toString(cnt));
@@ -84,28 +82,26 @@ public class StreamingExample {
     }
 
     @Test
+    public void consumeFromNonexistingTopic() throws InterruptedException {
+        Common common = new Common();
+        Properties streamsConfiguration = common.createStreamsClientConfiguration(this.getClass().getName() + "-application", this.getClass().getName() + "-client");
+        // In the subsequent lines we define the processing topology of the Streams application.
+        final StreamsBuilder builder = new StreamsBuilder();
+
+        final KStream<String, String> producedMessages = builder.stream("THIS-TOPIC-DOES-NOT-EXIST");
+        producedMessages.foreach((key, value) -> System.out.println("Key: " + key + ", value: " + value));
+
+        final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
+        streams.start();
+        for (; ; ) {
+            Thread.sleep(1000);
+        }
+    }
+
+    @Test
     public void consumeMessagesAsStream() throws InterruptedException {
-
-        final String bootstrapServers = kafkaBrokers;
-        final Properties streamsConfiguration = new Properties();
-        // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
-        // against which the application is run. A new Application ID -> consume from beginning
-        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "my-application-id");
-
-        // Client ID:
-        // An optional identifier of a Kafka consumer (in a consumer group) that is passed to a Kafka broker with every request.
-        // The sole purpose of this is to be able to track the source of requests beyond just ip and port by allowing a logical application name to be included in Kafka logs and monitoring aggregates.
-        streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, "my-client-id");
-
-        // Where to find Kafka broker(s).
-        streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-
-        // Specify default (de)serializers for record keys and for record values.
-        streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        streamsConfiguration.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class);
-        // If we do not commit and restart, we will get messages since last commit again when we restart
-        streamsConfiguration.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, "5000");
+        Common common = new Common();
+        Properties streamsConfiguration = common.createStreamsClientConfiguration(this.getClass().getName() + "-application", this.getClass().getName() + "-client");
         // In the subsequent lines we define the processing topology of the Streams application.
         final StreamsBuilder builder = new StreamsBuilder();
 
@@ -117,6 +113,5 @@ public class StreamingExample {
         for (; ; ) {
             Thread.sleep(1000);
         }
-
     }
 }
