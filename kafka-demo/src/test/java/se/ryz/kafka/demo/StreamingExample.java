@@ -63,7 +63,7 @@ import java.util.concurrent.Future;
 public class StreamingExample {
 
     private static final String TOPIC_NAME = "streaming-example-topic";
-    String kafkaDockerHost = "192.168.99.100";
+    String kafkaDockerHost = "localhost";
     String kafkaBrokers =  kafkaDockerHost + ":29092," + kafkaDockerHost + ":39092," + kafkaDockerHost + ":49092";
 
     @Test
