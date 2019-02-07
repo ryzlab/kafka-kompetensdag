@@ -18,13 +18,38 @@ import se.ryz.kafka.avro.HelloWorldRequest;
 
 import java.util.Properties;
 
-/*
+/**
 
   # List subjects in Shcema Registry
-  curl 172.18.0.40:8081/subjects
+  curl localhost:8081/subjects
+
+ TOPIC_NAME=hello-world-avro
+
+ # Delete Topic if it exists
+ kafka-topics --delete \
+ --if-exists \
+ --topic $TOPIC_NAME \
+ --zookeeper localhost:22181,localhost:32181,localhost:42181
+
+ # Create Topic
+ PARTITION_COUNT=2
+ REPLICATION_FACTOR=2
+
+ kafka-topics --create \
+ --topic $TOPIC_NAME \
+ --partitions $PARTITION_COUNT \
+ --replication-factor $REPLICATION_FACTOR \
+ --if-not-exists \
+ --config min.insync.replicas=2 \
+ --zookeeper localhost:22181,localhost:32181,localhost:42181
+
+
 
   Send an Avro Object to a topic and check what is registered
+  run {@link SchemaRegistry#testSendWithDefaultNamingStrategy()}
+
   Try to send another Avro Object to the same topic and see what happens
+ run {@link }
 
   Now, change the Value Subject Name Strategy to RecordNameStrategy, send the same avro object and check what is registered
   Try to send another Avro Object to the same topic and see what happens with the new naming strategy

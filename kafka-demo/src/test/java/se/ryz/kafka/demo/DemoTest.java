@@ -29,12 +29,8 @@ import java.util.concurrent.ExecutionException;
 
 public class DemoTest {
 
-    private static final String KAFKA_DOCKER_HOST = "192.168.99.100";
+    public static final String KAFKA_BROKERS = "localhost:29092,localhost:39092,localhost:49092" ;
 
-    public static final String KAFKA_BROKERS =
-            KAFKA_DOCKER_HOST + ":29092," +
-                    KAFKA_DOCKER_HOST + ":39092," +
-                    KAFKA_DOCKER_HOST + ":49092";
 
 
     /**
