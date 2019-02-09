@@ -92,6 +92,7 @@ docker network create --subnet=172.18.0.0/16 confluentnet
     -p 29999:29999 \
     -p 22888:22888 \
     -p 23888:23888 \
+    -h zk-1 \
     --net=confluentnet \
     --ip 172.18.0.10 \
     --name=zk-1 \
@@ -112,6 +113,7 @@ docker network create --subnet=172.18.0.0/16 confluentnet
     -p 39999:39999 \
     -p 32888:32888 \
     -p 33888:33888 \
+    -h zk-2 \
     --net=confluentnet \
     --ip 172.18.0.11 \
     --name=zk-2 \
@@ -132,6 +134,7 @@ docker network create --subnet=172.18.0.0/16 confluentnet
     -p 49999:49999 \
     -p 42888:42888 \
     -p 43888:43888 \
+    -h zk-3 \
     --net=confluentnet \
     --ip 172.18.0.12 \
    --name=zk-3 \
@@ -150,7 +153,7 @@ docker network create --subnet=172.18.0.0/16 confluentnet
 
 ....
 for i in 22181 32181 42181; do
-  docker run --net=host --rm confluentinc/cp-zookeeper:5.1.0 bash -c "echo stat | nc localhost $i | grep Mode"
+  docker run --net=confluentnet --rm confluentinc/cp-zookeeper:5.1.0 bash -c "echo stat | nc localhost $i | grep Mode"
 done
 ....
 
@@ -168,10 +171,11 @@ IMPORTANT: Set `CONFLUENT_DOCKER_IP` For the commands below to work
     --net=confluentnet \
     --ip 172.18.0.20 \
     --name=kafka-1 \
+    -h kafka-1 \
     -e KAFKA_BROKER_ID=1 \
     -e KAFKA_JMX_PORT=60001 \
     -e KAFKA_JMX_HOSTNAME=172.18.0.20 \
-    -e KAFKA_ZOOKEEPER_CONNECT=172.18.0.10:22181,172.18.0.11:32181,172.18.0.12:42181 \
+    -e KAFKA_ZOOKEEPER_CONNECT=zk-1:22181,zk-2:32181,zk-3:42181 \
     -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://172.18.0.20:29092 \
     -e KAFKA_MIN_INSYNC_REPLICAS=2 \
     -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false \
@@ -184,11 +188,12 @@ docker run -d \
     -p 39092:39092 \
     --net=confluentnet \
     --ip 172.18.0.21 \
+    -h kafka-2 \
     --name=kafka-2 \
     -e KAFKA_BROKER_ID=2 \
     -e KAFKA_JMX_PORT=60002 \
     -e KAFKA_JMX_HOSTNAME=172.18.0.21 \
-    -e KAFKA_ZOOKEEPER_CONNECT=172.18.0.10:22181,172.18.0.11:32181,172.18.0.12:42181 \
+    -e KAFKA_ZOOKEEPER_CONNECT=zk-1:22181,zk-2:32181,zk-3:42181 \
     -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://172.18.0.21:39092 \
     -e KAFKA_MIN_INSYNC_REPLICAS=2 \
     -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false \
@@ -201,11 +206,12 @@ docker run -d \
     -p 49092:49092 \
     --net=confluentnet \
     --ip 172.18.0.22 \
+    -h kafka-3 \
     --name=kafka-3 \
     -e KAFKA_BROKER_ID=3 \
     -e KAFKA_JMX_PORT=60003 \
     -e KAFKA_JMX_HOSTNAME=172.18.0.22 \
-    -e KAFKA_ZOOKEEPER_CONNECT=172.18.0.10:22181,172.18.0.11:32181,172.18.0.12:42181 \
+    -e KAFKA_ZOOKEEPER_CONNECT=zk-1:22181,zk-2:32181,zk-3:42181 \
     -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://172.18.0.22:49092 \
     -e KAFKA_MIN_INSYNC_REPLICAS=2 \
     -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false \
