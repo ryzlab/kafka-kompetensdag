@@ -18,42 +18,29 @@ Two methods to reprocess, start consumer with new ID or reset partition offsets
 Create a Topic with two partitions
 
  # Set necessary variable(s)
- CONFLUENT_DOCKER_IP=`docker-machine ip confluent`
 
  TOPIC_NAME=reprocess-messages-topic
 
   # Delete Topic if it exists
- docker run \
- --net=host \
- --rm \
- confluentinc/cp-kafka:5.1.0 \
  kafka-topics --delete \
  --if-exists \
  --topic $TOPIC_NAME \
- --zookeeper $CONFLUENT_DOCKER_IP:32181
+ --zookeeper localhost:22181,localhost:32181,localhost:42181
 
  # Create Topic
  PARTITION_COUNT=3
  REPLICATION_FACTOR=2
 
- docker run \
- --net=host \
- --rm \
- confluentinc/cp-kafka:5.1.0 \
  kafka-topics --create \
  --topic $TOPIC_NAME \
  --partitions $PARTITION_COUNT \
  --replication-factor $REPLICATION_FACTOR \
  --if-not-exists \
  --config min.insync.replicas=2 \
- --zookeeper $CONFLUENT_DOCKER_IP:32181
+ --zookeeper localhost:22181,localhost:32181,localhost:42181
 
  # Describe the Topic
- docker run \
- --net=host \
- --rm \
- confluentinc/cp-kafka:5.1.0 \
- kafka-topics --describe --topic $TOPIC_NAME --zookeeper $CONFLUENT_DOCKER_IP:32181
+ kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:22181,localhost:32181,localhost:42181
 
 
 

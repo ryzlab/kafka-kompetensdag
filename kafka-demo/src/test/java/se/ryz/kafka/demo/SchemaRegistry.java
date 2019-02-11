@@ -18,7 +18,7 @@ import se.ryz.kafka.avro.HelloWorldRequest;
 
 import java.util.Properties;
 
-/**
+/*
 
   # List subjects in Shcema Registry
   curl localhost:8081/subjects
@@ -45,44 +45,37 @@ import java.util.Properties;
 
 
 
-  Send an Avro Object to a topic and check what is registered
-  run {@link SchemaRegistry#testSendWithDefaultNamingStrategy()}
-
-  Try to send another Avro Object to the same topic and see what happens
- run {@link }
-
-  Now, change the Value Subject Name Strategy to RecordNameStrategy, send the same avro object and check what is registered
-  Try to send another Avro Object to the same topic and see what happens with the new naming strategy
 
  */
 public class SchemaRegistry {
 
+    /**
+     * We will send messages of Avro type with different Schema naming strategy.
+     * 1. Run {@link SchemaRegistry#AsendWithDefaultNamingStrategy()}.
+     * 2. Stop it and list subjects in Shcema Registry and see that our Avro Object is stored there.
+     * 3. run {@link SchemaRegistry#BsendWithRecordNameStrategy()}
+     * 4. Stop it and list subjects in Schema Registry again.
+     *
+     * What happens to the consumer after step 3
+     * Send an Avro Object to a topic and check what is registered
+     * run {@link SchemaRegistry#testSendWithDefaultNamingStrategy()}
+     * <p>
+     * Try to send another Avro Object to the same topic and see what happens
+     * run {@link }
+     * <p>
+     * Now, change the Value Subject Name Strategy to RecordNameStrategy, send the same avro object and check what is registered
+     * Try to send another Avro Object to the same topic and see what happens with the new naming strategy
+     *
+     * @throws InterruptedException
+     */
+
+
+    /**
+     * Create a KafkaProducer that sends a message of type '<'String, {@link HelloWorldCommand}'>' to the topic
+     * 'hello-world-avro'. The key can be anything.
+     */
     @Test
-    public void testConsumeWithDefaultNamingStrategy() throws InterruptedException{
-        Common common = new Common();
-        common.createConsumerConfig("consumer-" + this.getClass().getName(), "client-" + this.getClass().getName());
-        Properties streamsConfiguration = common.createStreamsClientConfiguration(this.getClass().getName(), null);
-        streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-
-
-        final StreamsBuilder builder = new StreamsBuilder();
-        final KStream<String, HelloWorldCommand> commandStream = builder.stream("hello-world-avro");
-        commandStream.foreach((key, command) -> {
-            System.out.println("Command received: " + command.getCommand());
-            System.out.println ("Request? " + (command.getCommand() instanceof HelloWorldRequest));
-            System.out.println ("Reply? " + (command.getCommand() instanceof HelloWorldReply));
-        });
-
-        KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
-        streams.start();
-        //Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-        for(;;) {
-            Thread.sleep(1000);
-        }
-    }
-
-    @Test
-    public void testSendWithDefaultNamingStrategy() {
+    public void AsendWithDefaultNamingStrategy() {
         Common common = new Common();
         Properties props = common.createProcessorProducerProperties(null);
         // Override Value Serializer to be Avro
@@ -100,8 +93,13 @@ public class SchemaRegistry {
         producer.close();
     }
 
+    /**
+     * Now create a similar KafkaProducer as {@link SchemaRegistry#AsendWithDefaultNamingStrategy()} but now with
+     * {@link io.confluent.kafka.serializers.subject.RecordNameStrategy} as the Schema naming Strategy.
+     * Again, send a message of type '<'String, {@link HelloWorldCommand}'>'
+     */
     @Test
-    public void testSendWithRecordNameStrategy() {
+    public void BsendWithRecordNameStrategy() {
         Common common = new Common();
         Properties props = common.createProcessorProducerProperties(null);
         // Override Value Serializer to be Avro
@@ -118,5 +116,33 @@ public class SchemaRegistry {
         producer.send(record);
         producer.flush();
         producer.close();
+    }
+
+    /**
+     * Write a KStream that receives messages from 'hello-world-avro' topic and prints messages to the console.
+     * @throws InterruptedException
+     */
+    @Test
+    public void Cconsume() throws InterruptedException {
+        Common common = new Common();
+        common.createConsumerConfig("consumer-" + this.getClass().getName(), "client-" + this.getClass().getName());
+        Properties streamsConfiguration = common.createStreamsClientConfiguration(this.getClass().getName(), null);
+        streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+
+
+        final StreamsBuilder builder = new StreamsBuilder();
+        final KStream<String, HelloWorldCommand> commandStream = builder.stream("hello-world-avro");
+        commandStream.foreach((key, command) -> {
+            System.out.println("Command received: " + command.getCommand());
+            System.out.println("Request? " + (command.getCommand() instanceof HelloWorldRequest));
+            System.out.println("Reply? " + (command.getCommand() instanceof HelloWorldReply));
+        });
+
+        KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
+        streams.start();
+        //Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+        for (; ; ) {
+            Thread.sleep(1000);
+        }
     }
 }

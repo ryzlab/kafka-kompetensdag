@@ -1,6 +1,13 @@
 package se.ryz.kafka.demo;
 
 /*
+    This lab will not require any Java Code, only some work with the Containers runnkng Kafka.
+    We will create a new Topic, write some data to it and have a look in the Kafka Log files.
+
+    We will then remove one brokers log files, kill and restart it and see that the files have
+    been restored again.
+
+
  Create a Topic with two partitions
 
     TOPIC_NAME=kafka-log-topic

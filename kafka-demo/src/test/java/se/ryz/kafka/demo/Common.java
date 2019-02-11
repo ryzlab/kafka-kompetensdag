@@ -26,6 +26,70 @@ public class Common {
 
     public static final String SCHEMA_REGISTRY_URL = "http://localhost:8081";
 
+    private int labelIndex;
+
+    private static String[] LABELS = {
+            "Zombieland",
+            "mad person disease",
+            "mad zombie disease",
+            "Columbus",
+            "Tallahassee",
+            "Twinkies",
+            "Wichita",
+            "Little Rock",
+            "Pacific Playland",
+            "Cardio",
+            "Double tap",
+            "Beware of bathrooms",
+            "Seatbelts",
+            "Limber up",
+            "Enjoy the little things",
+            "Shaun",
+            "Philip",
+            "Liz",
+            "Ed",
+            "The Winchester",
+            "Zombie Apocalypse",
+            "Barbara",
+            "Shaun of the Dead",
+            "Dawn of the Dead",
+            "WGON TV",
+            "Nazi zombies",
+            "Dead Snow",
+            "Herzog",
+            "Martin",
+            "Roy",
+            "Hanna",
+            "Vegard",
+            "Liv",
+            "What We Do in the Shadows",
+            "Viago",
+            "Vladislav",
+            "Deacon",
+            "Petyr",
+            "Procession of Shame",
+            "We're Werewolves, not Swear-Wolves",
+            "T-Virus",
+            "Umbrella Corporation",
+            "Rain",
+            "Alice",
+            "The Hive",
+            "Raccoon City",
+            "Red Queen"
+    };
+
+    public String getRandomLabel(int setSize) {
+        return LABELS[(int)(Math.random()*setSize) % LABELS.length];
+    }
+
+    public Common() {
+        labelIndex = 0;
+    }
+
+    public String getNextLabel() {
+        labelIndex %= LABELS.length;
+        return LABELS[labelIndex++];
+    }
 
     public Properties createConsumerConfig(String groupId, String clientId) {
         Properties props = new Properties();
