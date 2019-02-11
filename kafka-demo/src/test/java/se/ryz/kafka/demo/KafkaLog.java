@@ -29,40 +29,37 @@ package se.ryz.kafka.demo;
     --config min.insync.replicas=2 \
     --zookeeper localhost:22181,localhost:32181,localhost:42181
 
-    # Run interactive shell
-    docker exec -it kafka-1 bash
+    # Kafkas log files are stored in /var/lib/kafka/data. Connect to the container for 'kafka-1' and
+    # List files in that directory and see that the log file ending with '.log' is empty.
+    docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-topic-0"
 
-    # Check log file sizes, the log file should be empty
-    ls -al /var/lib/kafka/data/kafka-log-topic-0
-
-    # Produce messages to Topic with console producer
+    # Produce messages to Topic with console producer. Run the command below, type a few one-liners and exit with CTRL+D
 
     kafka-console-producer \
     --broker-list localhost:29092,localhost:39092,localhost:49092 \
     --topic $TOPIC_NAME
 
-    # Dump log
+    # Now run interactive shell and see that we have data in the file ending with '.log'
+    docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-topic-0"
+
+    # Now we can dump the content of the Kafka log file. You should see the data you produced earlier in the payload
     docker exec -it kafka-1 bash -c "kafka-run-class kafka.tools.DumpLogSegments --deep-iteration --print-data-log --files /var/lib/kafka/data/kafka-log-topic-0/00000000000000000000.log"
 
-    Open shell to Kafka-1 container and remove all data for topic
-    docker exec -it kafka-1 bash
-    rm -rf /var/lib/kafka/data/kafka-log-topic-0
+    # Remove all data files for the topic simulating disk error or similar
+    docker exec kafka-1 bash -c "rm -rf /var/lib/kafka/data/kafka-log-topic-0"
 
-    Produce a message with
-     kafka-console-producer \
-    --broker-list localhost:29092,localhost:39092,localhost:49092 \
-    --topic $TOPIC_NAME
+    # Check that files has been removed by trying to list directory again
+    docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-topic-0"
 
-    No log file appears,
-    ls -al /var/lib/kafka/data/kafka-log-topic-0
-    ls: cannot access /var/lib/kafka/data/kafka-log-topic-0: No such file or directory
 
-    Kill Kafka container
+    # Kill Kafka container
     docker kill kafka-1
 
-    Open shell to Kafka-1 container and see that the data is there
-    docker exec -it kafka-1 bash
-    ls -al /var/lib/kafka/data/kafka-log-topic-0
+    # Start Kafka container again
+    docker start kafka-1
+
+    # List directory and see that the data is there
+    docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-topic-0"
 
     # And dump the log again
     docker exec -it kafka-1 bash -c "kafka-run-class kafka.tools.DumpLogSegments --deep-iteration --print-data-log --files /var/lib/kafka/data/kafka-log-topic-0/00000000000000000000.log"

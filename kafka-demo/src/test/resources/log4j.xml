@@ -6,40 +6,44 @@
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern"
-                   value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L - %m%n" />
+                   value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L - %m%n"/>
         </layout>
     </appender>
 
     <category name="org.apache.kafka.clients.FetchSessionHandler">
         <level value="INFO"></level>
     </category>
-   <category name="org.apache.kafka.clients.consumer.internals.Fetcher">
+    <category name="org.apache.kafka.clients.consumer.internals.Fetcher">
         <level value="INFO"></level>
     </category>
-   <category name="org.apache.kafka.common.metrics.Metrics">
+    <category name="org.apache.kafka.common.metrics.Metrics">
         <level value="INFO"></level>
     </category>
-   <category name="org.apache.kafka.clients.Metadata">
+    <category name="org.apache.kafka.clients.Metadata">
         <level value="INFO"></level>
     </category>
-   <category name="org.apache.kafka.clients.consumer.internals.ConsumerCoordinator">
+    <category name="org.apache.kafka.clients.consumer.internals">
         <level value="INFO"></level>
     </category>
-  <category name="org.apache.kafka.clients.NetworkClient">
+    <category name="org.apache.kafka.clients.NetworkClient">
         <level value="INFO"></level>
     </category>
-  <category name="org.apache.kafka.clients.consumer.internals.AbstractCoordinator">
+    <category name="org.apache.kafka.clients.consumer.KafkaConsumer">
         <level value="INFO"></level>
     </category>
-  <category name="org.apache.kafka.clients.consumer.KafkaConsumer">
+    <category name="org.apache.kafka.common.network.Selector">
         <level value="INFO"></level>
     </category>
-  <category name="org.apache.kafka.common.network.Selector">
+    <category name="org.apache.kafka.streams.processor.internals">
         <level value="INFO"></level>
     </category>
+    <category name="org.apache.kafka.clients.admin.KafkaAdminClient">
+        <level value="INFO"></level>
+    </category>
+
     <root>
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
     </root>
 
 </log4j:configuration>

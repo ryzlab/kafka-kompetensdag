@@ -62,11 +62,13 @@ public class StreamingExample {
         // In the subsequent lines we define the processing topology of the Streams application.
         final StreamsBuilder builder = new StreamsBuilder();
 
-        final KStream<String, String> producedMessages = builder.stream(TOPIC_NAME);
-        producedMessages.foreach((key, value) -> System.out.println("Key: " + key + ", value: " + value));
+        final KStream<String, String> messageStream = builder.stream(TOPIC_NAME);
+        messageStream.foreach((key, value) -> System.out.println("Key: " + key + ", value: " + value));
 
+        // Create and start the stream
         final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
         streams.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
         for (; ; ) {
             Thread.sleep(1000);
         }

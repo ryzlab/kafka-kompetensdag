@@ -10,21 +10,16 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
-import org.apache.kafka.streams.kstream.KStream;
 import org.junit.Test;
-import se.ryz.kafka.avro.HelloWorldCommand;
-import se.ryz.kafka.avro.HelloWorldReply;
-import se.ryz.kafka.avro.HelloWorldRequest;
+import se.ryz.kafka.demo.avro.zombieweapon.Axe;
+import se.ryz.kafka.demo.avro.zombieweapon.Chainsaw;
+import se.ryz.kafka.demo.avro.zombieweapon.ZombieWeapon;
 
 import java.util.Properties;
 
 /*
 
-  # List subjects in Shcema Registry
-  curl localhost:8081/subjects
-
- TOPIC_NAME=hello-world-avro
-
+ TOPIC_NAME=zombiefight-avro-topicname-topic
  # Delete Topic if it exists
  kafka-topics --delete \
  --if-exists \
@@ -44,6 +39,24 @@ import java.util.Properties;
  --zookeeper localhost:22181,localhost:32181,localhost:42181
 
 
+ TOPIC_NAME=zombiefight-avro-recordname-topic
+ # Delete Topic if it exists
+ kafka-topics --delete \
+ --if-exists \
+ --topic $TOPIC_NAME \
+ --zookeeper localhost:22181,localhost:32181,localhost:42181
+
+ # Create Topic
+ PARTITION_COUNT=2
+ REPLICATION_FACTOR=2
+
+ kafka-topics --create \
+ --topic $TOPIC_NAME \
+ --partitions $PARTITION_COUNT \
+ --replication-factor $REPLICATION_FACTOR \
+ --if-not-exists \
+ --config min.insync.replicas=2 \
+ --zookeeper localhost:22181,localhost:32181,localhost:42181
 
 
  */
@@ -51,28 +64,34 @@ public class SchemaRegistry {
 
     /**
      * We will send messages of Avro type with different Schema naming strategy.
+     * 0. List registered subjects in Schema Registry
+     *    curl localhost:8081/subjects
      * 1. Run {@link SchemaRegistry#AsendWithDefaultNamingStrategy()}.
-     * 2. Stop it and list subjects in Shcema Registry and see that our Avro Object is stored there.
+     * 2. List subjects in Shcema Registry and see that our Avro Object is stored there.
+     *    curl localhost:8081/subjects
      * 3. run {@link SchemaRegistry#BsendWithRecordNameStrategy()}
-     * 4. Stop it and list subjects in Schema Registry again.
+     * 4. List subjects in Schema Registry again.
+     *    curl localhost:8081/subjects
      *
-     * What happens to the consumer after step 3
-     * Send an Avro Object to a topic and check what is registered
-     * run {@link SchemaRegistry#testSendWithDefaultNamingStrategy()}
-     * <p>
-     * Try to send another Avro Object to the same topic and see what happens
-     * run {@link }
-     * <p>
-     * Now, change the Value Subject Name Strategy to RecordNameStrategy, send the same avro object and check what is registered
-     * Try to send another Avro Object to the same topic and see what happens with the new naming strategy
+     * Try to instantiate an Avro object of another type and send it to 'zombiefight-avro-topicname-topic' and
+     * see what happens.
      *
-     * @throws InterruptedException
+     * We can retrieve subject versions
+     *     curl localhost:8081/subjects/se.ryz.kafka.demo.avro.zombieweapon.ZombieWeapon/versions
+     *
+     * We can also retrieve schema definition. Examples:
+     *     curl localhost:8081/subjects/se.ryz.kafka.demo.avro.zombieweapon.ZombieWeapon/versions/latest
+     *     curl localhost:8081/subjects/zombiefight-avro-topicname-topic-value/versions/latest
+     *
+     * Extra work:
+     * Modify the avro schema definition and re-run this exercise to try out compatible schema changes
      */
 
 
     /**
-     * Create a KafkaProducer that sends a message of type '<'String, {@link HelloWorldCommand}'>' to the topic
-     * 'hello-world-avro'. The key can be anything.
+     * Create a KafkaProducer that sends a message of type '<'String, {@link ZombieWeapon}'>' to the topic
+     * 'zombiefight-avro-topicname-topic'. Use default naming strategy, just don't configure the producer property
+     * {@link AbstractKafkaAvroSerDeConfig#VALUE_SUBJECT_NAME_STRATEGY}.
      */
     @Test
     public void AsendWithDefaultNamingStrategy() {
@@ -84,19 +103,20 @@ public class SchemaRegistry {
         props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, Common.SCHEMA_REGISTRY_URL);
         // Default Key and Value name strategy is TopicNameStrategy
 
-        KafkaProducer<String, HelloWorldCommand> producer = new KafkaProducer<>(props);
-        HelloWorldRequest command = new HelloWorldRequest("The request");
-        HelloWorldCommand helloWorldCommand = new HelloWorldCommand(command);
-        ProducerRecord<String, HelloWorldCommand> record = new ProducerRecord<>("hello-world-avro", "key", helloWorldCommand);
+        KafkaProducer<String, ZombieWeapon> producer = new KafkaProducer<>(props);
+        Chainsaw command = new Chainsaw("ZCS5817, ZOMBI 16\" 58V 4AH CHAINSAW");
+        ZombieWeapon zombieWeapon = new ZombieWeapon("Command description", command);
+        ProducerRecord<String, ZombieWeapon> record = new ProducerRecord<>("zombiefight-avro-topicname-topic", "fight1", zombieWeapon);
         producer.send(record);
         producer.flush();
         producer.close();
     }
 
     /**
-     * Now create a similar KafkaProducer as {@link SchemaRegistry#AsendWithDefaultNamingStrategy()} but now with
+     * Now create a similar KafkaProducer as {@link SchemaRegistry#AsendWithDefaultNamingStrategy()} but now with the property
+     * {@link AbstractKafkaAvroSerDeConfig#VALUE_SUBJECT_NAME_STRATEGY} set to
      * {@link io.confluent.kafka.serializers.subject.RecordNameStrategy} as the Schema naming Strategy.
-     * Again, send a message of type '<'String, {@link HelloWorldCommand}'>'
+     * Again, send a message of type '<'String, {@link ZombieWeapon}'>'
      */
     @Test
     public void BsendWithRecordNameStrategy() {
@@ -106,13 +126,14 @@ public class SchemaRegistry {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
         // Override the default Key and Value name strategy
         props.put(AbstractKafkaAvroSerDeConfig.KEY_SUBJECT_NAME_STRATEGY, RecordNameStrategy.class);
-        props.put(AbstractKafkaAvroSerDeConfig.VALUE_SUBJECT_NAME_STRATEGY, RecordNameStrategy.class);
         props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, Common.SCHEMA_REGISTRY_URL);
+        // Override default naming strategy
+        props.put(AbstractKafkaAvroSerDeConfig.VALUE_SUBJECT_NAME_STRATEGY, RecordNameStrategy.class);
 
-        KafkaProducer<String, HelloWorldCommand> producer = new KafkaProducer<>(props);
-        HelloWorldRequest command = new HelloWorldRequest("The request");
-        HelloWorldCommand helloWorldCommand = new HelloWorldCommand(command);
-        ProducerRecord<String, HelloWorldCommand> record = new ProducerRecord<>("hello-world-avro-recordnamestrategy", "key", helloWorldCommand);
+        KafkaProducer<String, ZombieWeapon> producer = new KafkaProducer<>(props);
+        Axe weapon = new Axe(8);
+        ZombieWeapon zombieWeapon = new ZombieWeapon("Command description", weapon);
+        ProducerRecord<String, ZombieWeapon> record = new ProducerRecord<>("zombiefight-avro-recordname-topic", "fight2", zombieWeapon);
         producer.send(record);
         producer.flush();
         producer.close();
@@ -122,7 +143,7 @@ public class SchemaRegistry {
      * Write a KStream that receives messages from 'hello-world-avro' topic and prints messages to the console.
      * @throws InterruptedException
      */
-    @Test
+/*    @Test
     public void Cconsume() throws InterruptedException {
         Common common = new Common();
         common.createConsumerConfig("consumer-" + this.getClass().getName(), "client-" + this.getClass().getName());
@@ -144,5 +165,5 @@ public class SchemaRegistry {
         for (; ; ) {
             Thread.sleep(1000);
         }
-    }
+    }*/
 }

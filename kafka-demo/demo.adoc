@@ -120,8 +120,9 @@ Cluster-name: kafka-docker
 Cluster Zookeeper Hosts: zk-1:22181,zk-2:32181,zk-3:42181
 Enable JMX Polling...: Check
 Poll consumer information (Not recommended for large # of consumers): Check
-
+Enable Active OffsetCache (Not recommended for large # of consumers): Check
 ....
+
 //-------------------------------------------------
 
 == Topics

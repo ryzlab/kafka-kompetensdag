@@ -84,9 +84,10 @@ public class KTables {
      * that prints the result to the console.
      */
 
+
     /**
      * Write a Producer that produces messages of type '<'String, String'>' to the topic 'counter-topic'.
-     * Set the message value by using {@link Common#getRandomLabel(int)} with a value of 4.
+     * Set the message value by using {@link Common#getRandomLabel(int)} with a value of 6.
      * Produce messages with a sleep in between to keep things at a sane speed while doing the lab.
      * The content of the key is not important for the lab so just set it to null.
      */
@@ -96,11 +97,13 @@ public class KTables {
         Properties producerProperties = common.createProcessorProducerProperties(null);
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
         for (int cnt = 0; ; cnt++) {
-            ProducerRecord<String, String> record = new ProducerRecord<>("counter-topic", null, common.getRandomLabel(4));
+            String value = common.getRandomLabel(6);
+            String key = null ;
+            ProducerRecord<String, String> record = new ProducerRecord<>("counter-topic", key, value);
             Future<RecordMetadata> recordMetadataFuture = producer.send(record);
             producer.flush();
             RecordMetadata recordMetadata = recordMetadataFuture.get();
-            System.out.println(recordMetadata.topic() + ": key=null, value=" + cnt + ", offset: " + recordMetadata.offset() + ", partition: " + recordMetadata.partition());
+            System.out.println(recordMetadata.topic() + ": key=" + key + ", value=" + value + ", offset: " + recordMetadata.offset() + ", partition: " + recordMetadata.partition());
             Thread.sleep(5000);
         }
     }
@@ -134,7 +137,7 @@ public class KTables {
 
     /**
      * Write a consumer that consumes messages of type '<'String, Long'>' from 'stats-topic' and print them to the console.
-     * You should get the count of all individual keys sent from {@link KTables#computeKTableStatistics()}
+     * You should get the count of all individual keys sent from {@link KTables#BcomputeKTableStatistics()}
      * @throws InterruptedException
      */
     @Test
