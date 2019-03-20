@@ -1,16 +1,10 @@
 package se.ryz.kafka.demo;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.Test;
 
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -19,43 +13,29 @@ import java.util.concurrent.Future;
  * Create a Topic with two partitions
 
  # Set necessary variable(s)
- CONFLUENT_DOCKER_IP=`docker-machine ip confluent`
 
  TOPIC_NAME=consumer-rebalance-topic
 
  # Delete Topic if it exists
- docker run \
- --net=host \
- --rm \
- confluentinc/cp-kafka:5.1.0 \
  kafka-topics --delete \
  --if-exists \
  --topic $TOPIC_NAME \
- --zookeeper $CONFLUENT_DOCKER_IP:32181
+ --zookeeper localhost:22181,localhost:32181,localhost:42181
 
  # Create Topic(s) for Lab
  PARTITION_COUNT=2
  REPLICATION_FACTOR=2
 
-
- docker run \
- --net=host \
- --rm \
- confluentinc/cp-kafka:5.1.0 \
  kafka-topics --create \
  --topic $TOPIC_NAME \
  --partitions $PARTITION_COUNT \
  --replication-factor $REPLICATION_FACTOR \
  --if-not-exists \
  --config min.insync.replicas=2 \
- --zookeeper $CONFLUENT_DOCKER_IP:32181
+ --zookeeper localhost:22181,localhost:32181,localhost:42181
 
  # Describe the Topic
- docker run \
- --net=host \
- --rm \
- confluentinc/cp-kafka:5.1.0 \
- kafka-topics --describe --topic $TOPIC_NAME --zookeeper $CONFLUENT_DOCKER_IP:32181
+ kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:22181,localhost:32181,localhost:42181
 
  */
 public class ConsumerRebalancing {
@@ -91,7 +71,8 @@ public class ConsumerRebalancing {
             Future<RecordMetadata> recordMetadataFuture = producer.send(record);
             producer.flush();
             RecordMetadata recordMetadata = recordMetadataFuture.get();
-            System.out.println(recordMetadata.topic() +": key=null, value=" + cnt + ", offset: " + recordMetadata.offset() + ", partition: " + recordMetadata.partition());
+
+            System.out.println(recordMetadata.topic() +": key=" + record.key() + ", value=" + record.value() + ", offset: " + recordMetadata.offset() + ", partition: " + recordMetadata.partition());
             Thread.sleep(2000);
         }
         //producer.close();

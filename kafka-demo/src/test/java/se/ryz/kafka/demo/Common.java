@@ -13,25 +13,18 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
-import org.junit.Test;
 
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class Common {
-    private static final String KAFKA_DOCKER_HOST = "192.168.99.100";
+    public static final String KAFKA_BROKERS = "localhost:29092,localhost:39092,localhost:49092" ;
 
-    public static final String KAFKA_BROKERS =
-            "172.18.0.20:29092," +
-                    "172.18.0.21:39092," +
-                    "172.18.0.22:49092";
-
-    public static final String SCHEMA_REGISTRY_URL = "172.18.0.40:8081";
+    public static final String SCHEMA_REGISTRY_URL = "http://localhost:8081";
 
 
     public Properties createConsumerConfig(String groupId, String clientId) {
@@ -88,7 +81,8 @@ public class Common {
             Future<RecordMetadata> recordMetadataFuture = producer.send(record);
             producer.flush();
             RecordMetadata recordMetadata = recordMetadataFuture.get();
-            System.out.println(recordMetadata.topic() +": key=null, value=" + cnt + ", offset: " + recordMetadata.offset() + ", partition: " + recordMetadata.partition());
+            System.out.println(recordMetadata.topic() +": key=" + record.key() + ", value=" + record.value() + ", offset: " + recordMetadata.offset() + ", partition: " + recordMetadata.partition());
+
             Thread.sleep(2000);
         }
         //producer.close();
