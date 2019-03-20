@@ -26,15 +26,85 @@ public class Common {
 
     public static final String SCHEMA_REGISTRY_URL = "http://localhost:8081";
 
+    private int labelIndex;
+
+    private static String[] LABELS = {
+            "Zombieland",
+            "mad zombie disease",
+            "Columbus",
+            "Tallahassee",
+            "Twinkies",
+            "Wichita",
+            "Little Rock",
+            "Pacific Playland",
+            "Cardio",
+            "Double tap",
+            "Beware of bathrooms",
+            "Seatbelts",
+            "Limber up",
+            "Enjoy the little things",
+            "Shaun",
+            "Philip",
+            "Liz",
+            "Ed",
+            "The Winchester",
+            "Zombie Apocalypse",
+            "Barbara",
+            "Shaun of the Dead",
+            "Dawn of the Dead",
+            "WGON TV",
+            "Nazi zombies",
+            "Dead Snow",
+            "Herzog",
+            "Martin",
+            "Roy",
+            "Hanna",
+            "Vegard",
+            "Liv",
+            "What We Do in the Shadows",
+            "Viago",
+            "Vladislav",
+            "Deacon",
+            "Petyr",
+            "Procession of Shame",
+            "We're Werewolves, not Swear-Wolves",
+            "T-Virus",
+            "Umbrella Corporation",
+            "Rain",
+            "Alice",
+            "The Hive",
+            "Raccoon City",
+            "Red Queen"
+    };
+
+    public String getRandomLabel(int setSize) {
+        return LABELS[(int)(Math.random()*setSize) % LABELS.length];
+    }
+
+    public Common() {
+        labelIndex = 0;
+    }
+
+    public String getNextLabel() {
+        labelIndex %= LABELS.length;
+        return LABELS[labelIndex++];
+    }
 
     public Properties createConsumerConfig(String groupId, String clientId) {
-        Properties props = new Properties();
+        final Properties props = new Properties();
+        // Where to find Kafka broker(s).
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS);
+        // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
+        // against which the application is run. A new Application ID -> consume from beginning
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        // CLIENT_ID_CONFIG is used so that we can track calls from the client in the server logs
+        // Client ID:
+        // An optional identifier of a Kafka consumer (in a consumer group) that is passed to a Kafka broker with every request.
+        // The sole purpose of this is to be able to track the source of requests beyond just ip and port by allowing a logical
+        // application name to be included in Kafka logs and monitoring aggregates.
         if (clientId != null) {
             props.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
         }
+        // Specify (de)serializers for record keys values.
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1");
@@ -42,6 +112,30 @@ public class Common {
         // will think that the broker is down
         //props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "10000");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        return props;
+    }
+
+    public Properties createStreamsClientConfiguration(String applicationId, String clientId) {
+        final Properties props = new Properties();
+        // Where to find Kafka broker(s).
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS);
+        // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
+        // against which the application is run. A new Application ID -> consume from beginning
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId);
+
+        // Client ID:
+        // An optional identifier of a Kafka consumer (in a consumer group) that is passed to a Kafka broker with every request.
+        // The sole purpose of this is to be able to track the source of requests beyond just ip and port by allowing a logical
+        // application name to be included in Kafka logs and monitoring aggregates.
+        if (clientId != null) {
+            props.put(StreamsConfig.CLIENT_ID_CONFIG, clientId);
+        }
+        // Specify (de)serializers for record keys values.
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class);
+        // If we do not commit and restart, we will get messages since last commit again when we restart
+        props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, "5000");
         return props;
     }
 
@@ -90,10 +184,11 @@ public class Common {
 
     public void runSubscriptionConsumer(String topicName, String groupId, String clientId) throws InterruptedException {
         Common common = new Common();
-        Properties consumerConfig = common.createConsumerConfig(groupId, clientId);
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerConfig);
+        Properties props = common.createConsumerConfig(groupId, clientId);
+        // Create the consumer and subscribe
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
         consumer.subscribe(Arrays.asList(topicName));
-
+        // Poll for records and process them
         for (;;) {
             ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofSeconds(1));
             if (consumerRecords.isEmpty()) {
@@ -101,37 +196,13 @@ public class Common {
             } else {
                 for (Iterator<ConsumerRecord<String, String>> it = consumerRecords.iterator(); it.hasNext();) {
                     ConsumerRecord<String, String> record = it.next();
-                    System.out.println ("   " + record.topic() + ", partition: " + record.partition() + ", key: " + record.key() + ", value: " + record.value());
+                    System.out.println ("   " + record.topic() + ", partition: " + record.partition() +
+                            ", key: " + record.key() + ", value: " + record.value());
                 }
             }
-
         }
     }
 
-    public Properties createStreamsClientConfiguration(String applicationId, String clientId) {
-        final Properties streamsConfiguration = new Properties();
-        // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
-        // against which the application is run. A new Application ID -> consume from beginning
-        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId);
-
-        // Client ID:
-        // An optional identifier of a Kafka consumer (in a consumer group) that is passed to a Kafka broker with every request.
-        // The sole purpose of this is to be able to track the source of requests beyond just ip and port by allowing a logical application name to be included in Kafka logs and monitoring aggregates.
-        if (clientId != null) {
-            streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, clientId);
-        }
-
-        // Where to find Kafka broker(s).
-        streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS);
-
-        // Specify default (de)serializers for record keys and for record values.
-        streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        streamsConfiguration.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class);
-        // If we do not commit and restart, we will get messages since last commit again when we restart
-        streamsConfiguration.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, "5000");
-        return streamsConfiguration;
-    }
 
 
 }

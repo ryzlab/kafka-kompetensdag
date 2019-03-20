@@ -1,31 +1,42 @@
 [
 {
-    "namespace": "se.ryz.kafka.avro",
+    "namespace": "se.ryz.kafka.demo.avro.zombieweapon",
     "type": "record",
-    "name": "HelloWorldRequest",
-    "doc": "A basic hello world Microservice request",
+    "name": "Chainsaw",
+    "doc": "Number 1 option",
     "fields": [
-        {"name": "request", "type": "string"}
+        {"name": "model", "type": "string", "doc": "Zombi ZCS5817, Zombi ZCS12017 etc"}
     ]
 },
 {
-    "namespace": "se.ryz.kafka.avro",
+    "namespace": "se.ryz.kafka.demo.avro.zombieweapon",
     "type": "record",
-    "name": "HelloWorldReply",
-    "doc": "A basic hello world Microservice reply",
+    "name": "Axe",
+    "doc": "The heavier the better",
     "fields": [
-        {"name": "reply", "type": "string"}
+        {"name": "weight", "type": "int", "doc": "Weight in kilograms"}
     ]
 },
 {
-    "namespace": "se.ryz.kafka.avro",
+    "namespace": "se.ryz.kafka.demo.avro.zombieweapon",
     "type": "record",
-    "name": "HelloWorldCommand",
-    "doc": "Either a request or a reply",
+    "name": "Banjo",
+    "doc": "Only for hard-core Zombiekillers",
     "fields": [
+        {"name": "killOfTheWeek", "type": "boolean", "doc": "Use the Banjo to get nominated for 'Kill of The Week'"}
+    ]
+},
+{
+    "namespace": "se.ryz.kafka.demo.avro.zombieweapon",
+    "type": "record",
+    "name": "ZombieWeapon",
+    "doc": "When in the zombie-killing business, this is what you need",
+    "fields": [
+        {"name": "description", "type": "string", "doc": "Short description"},
         {"name": "command", "type": [
-            "se.ryz.kafka.avro.HelloWorldRequest",
-            "se.ryz.kafka.avro.HelloWorldReply"
+            "se.ryz.kafka.demo.avro.zombieweapon.Chainsaw",
+            "se.ryz.kafka.demo.avro.zombieweapon.Axe",
+            "se.ryz.kafka.demo.avro.zombieweapon.Banjo"
         ]
         }
     ]

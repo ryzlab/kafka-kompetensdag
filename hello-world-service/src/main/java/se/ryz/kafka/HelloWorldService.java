@@ -14,11 +14,9 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.KStream;
-import org.apache.log4j.Logger;
-import se.ryz.kafka.avro.HelloWorldCommand;
-import se.ryz.kafka.avro.HelloWorldRequest;
+import se.ryz.kafka.demo.avro.zombieweapon.Chainsaw;
+import se.ryz.kafka.demo.avro.zombieweapon.ZombieWeapon;
 
-import java.net.URL;
 import java.util.Properties;
 
 public class HelloWorldService {
@@ -32,7 +30,7 @@ public class HelloWorldService {
         producerConfig.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistry);
 
         Properties streamsConfiguration = new Properties();
-        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "hello-world-stream");
+        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "zombiefighter-stream");
         streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers);
         streamsConfiguration.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistry);
         streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
@@ -41,19 +39,19 @@ public class HelloWorldService {
 
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<String, HelloWorldCommand> helloWorldCommandConsumer = builder.stream("hello-world-command-topic");
+        KStream<String, ZombieWeapon> zombieWeaponConsumer = builder.stream("zombiefighting-topic");
 
-        helloWorldCommandConsumer.foreach((messageId, command) -> {
+        zombieWeaponConsumer.foreach((messageId, command) -> {
             System.out.println("******************************* Received message. ID: " + messageId + ", command: " + command);
         });
 
-        KafkaProducer<String, HelloWorldCommand> helloWorldCommandProducer = new KafkaProducer(producerConfig);
+        KafkaProducer<String, ZombieWeapon> zombieWeaponProducer = new KafkaProducer(producerConfig);
         String messageId = "1";
-        HelloWorldRequest helloWorldRequest = new HelloWorldRequest(System.currentTimeMillis(), "The request");
-        HelloWorldCommand helloWorldCommand = new HelloWorldCommand(System.currentTimeMillis(), helloWorldRequest);
-        ProducerRecord<String, HelloWorldCommand> record = new ProducerRecord<>("hello-world-command-topic", messageId, helloWorldCommand);
+        Chainsaw chainsaw = new Chainsaw("Zombi ZCS5817");
+        ZombieWeapon ourWeaponOfChoice = new ZombieWeapon("No reason to take it easy", chainsaw);
+        ProducerRecord<String, ZombieWeapon> record = new ProducerRecord<>("zombiefighting-topic", messageId, ourWeaponOfChoice);
         System.out.println ("******************************* Sending message");
-        helloWorldCommandProducer.send(record);
+        zombieWeaponProducer.send(record);
 
         KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
         streams.start();
