@@ -106,7 +106,6 @@
     </dependencyManagement>
     <modules>
         <module>avro</module>
-        <module>hello-world-service</module>
         <module>kafka-demo</module>
     </modules>
 </project>
