@@ -12,6 +12,9 @@
     <packaging>pom</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <avro.version>1.8.2</avro.version>
+        <confluent.version>5.1.2</confluent.version>
+        <kafka.version>2.1.1</kafka.version>
     </properties>
     <build>
         <plugins>
@@ -42,7 +45,7 @@
             <dependency>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>
-                <version>1.8.2</version>
+                <version>${avro.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-cli</groupId>
@@ -57,22 +60,22 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>2.1.0</version>
+                <version>${kafka.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-streams</artifactId>
-                <version>2.1.0</version>
+                <version>${kafka.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.confluent</groupId>
                 <artifactId>kafka-streams-avro-serde</artifactId>
-                <version>5.1.0</version>
+                <version>${confluent.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.confluent</groupId>
                 <artifactId>kafka-avro-serializer</artifactId>
-                <version>5.1.0</version>
+                <version>${confluent.version}</version>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>

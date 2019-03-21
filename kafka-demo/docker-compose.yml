@@ -2,7 +2,7 @@ version: "3"
 services:
   zk-1:
     container_name: "zk-1"
-    image: confluentinc/cp-zookeeper:5.1.0
+    image: confluentinc/cp-zookeeper:5.1.2
     ports:
       - "22181:22181"
       - "29999:29999"
@@ -20,7 +20,7 @@ services:
 
   zk-2:
     container_name: "zk-2"
-    image: confluentinc/cp-zookeeper:5.1.0
+    image: confluentinc/cp-zookeeper:5.1.2
     ports:
       - "32181:32181"
       - "39999:39999"
@@ -38,7 +38,7 @@ services:
 
   zk-3:
     container_name: "zk-3"
-    image: confluentinc/cp-zookeeper:5.1.0
+    image: confluentinc/cp-zookeeper:5.1.2
     ports:
       - "42181:42181"
       - "49999:49999"
@@ -56,7 +56,7 @@ services:
 
   kafka-1:
     container_name: "kafka-1"
-    image: confluentinc/cp-kafka:5.1.0
+    image: confluentinc/cp-kafka:5.1.2
     ports:
         - "60001:60001"
         - "29092:29092"
@@ -79,7 +79,7 @@ services:
 
   kafka-2:
     container_name: "kafka-2"
-    image: confluentinc/cp-kafka:5.1.0
+    image: confluentinc/cp-kafka:5.1.2
     ports:
       - "60002:60002"
       - "39092:39092"
@@ -106,7 +106,7 @@ services:
 
   kafka-3:
     container_name: "kafka-3"
-    image: confluentinc/cp-kafka:5.1.0
+    image: confluentinc/cp-kafka:5.1.2
     ports:
       - "60003:60003"
       - "49092:49092"
@@ -137,6 +137,7 @@ services:
       KM_VERSION: "1.3.3.18"
       ZK_HOSTS: "zk-1:22181,zk-2:32181,zk-3:42181"
       APPLICATION_SECRET: "soincrediblyseecret"
+      KM_ARGS: "-Dpidfile.path=/dev/null"
     depends_on:
       - "kafka-1"
       - "kafka-2"
@@ -146,7 +147,7 @@ services:
 
   schema-registry:
     container_name: "schema-registry"
-    image: confluentinc/cp-schema-registry:5.1.0
+    image: confluentinc/cp-schema-registry:5.1.2
     ports:
       - "8081:8081"
     environment:
