@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class Common {
-    public static final String KAFKA_BROKERS = "localhost:29092,localhost:39092,localhost:49092" ;
+    public static final String KAFKA_BROKERS = "localhost:9022,localhost:9032,localhost:9042" ;
 
     public static final String SCHEMA_REGISTRY_URL = "http://localhost:8081";
 
