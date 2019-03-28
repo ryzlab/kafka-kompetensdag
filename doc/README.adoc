@@ -1,0 +1,37 @@
+== Komma igång
+
+=== Installera docker och docker-compose
+Installera på det bästa sättet för din plattform
+
+=== Installera Confluent Platform
+
+Confluent Platform distribueras som en tarboll eller zip. Den laddas hem från Confluents hemsida.
+
+Surfa till https://www.confluent.io/download, klicka på "Download Version 5.1.2" och följ instruktionerna
+Packa upp distributionen och sätt PATH.
+
+  $ unzip confluent-5.1.2-2.11.zip
+  $ cd confluent-5.1.2/bin
+  $ export PATH=$PATH:`pwd`
+
+=== Kompetensdagsrepot
+
+Klona repot (Moment 22 här, men det är antagligen löst om du kan läsa det här)
+
+  $ git clone https://github.com/ryzlab/kafka-kompetensdag.git
+
+Starta kafkaklustret
+
+  $ cd kafka-kompetensdag
+  $ docker-compose up
+
+Nu ska det gå att surfa till Kafka-Manager, ett Web-UI för att hantera Kafkakluster.
+Testa att surfa till http://localhost:9000
+
+Det ska även gå att kommunicera med klustret för att t.ex. lista skapade topics:
+
+  $ kafka-topics --list --zookeeper localhost:32181
+  _schemas
+
+YES!!! Redo!
+
