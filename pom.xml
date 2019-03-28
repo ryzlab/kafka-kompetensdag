@@ -106,6 +106,6 @@
     </dependencyManagement>
     <modules>
         <module>avro</module>
-        <module>kafka-demo</module>
+        <module>exercises</module>
     </modules>
 </project>
