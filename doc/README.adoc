@@ -33,5 +33,6 @@ Det ska även gå att kommunicera med klustret för att t.ex. lista skapade topi
   $ kafka-topics --list --zookeeper localhost:32181
   _schemas
 
+
 YES!!! Redo!
 

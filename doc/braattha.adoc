@@ -1,0 +1,144 @@
+== Source
+https://docs.confluent.io/current/installation/docker/docs/installation/clustered-deployment.html
+
+== List all docker images
+  docker image list
+
+== List all docker containers
+  docker ps -a
+
+// -------------------------------
+
+== Start ==
+=== Start all Zookeepers
+  docker start `docker ps -a | grep zk- | awk '{print $1}'`
+
+=== Start all Kafka containers
+  docker start `docker ps -a | grep kafka- | awk '{print $1}'`
+
+=== Start a Docker instance
+  docker start zk-1
+
+// -------------------------------
+
+== Stop ==
+=== Stop all containers
+  docker stop $(docker ps -a -q)
+
+=== Stop all Zookeepers
+  docker stop `docker ps -a | grep zk- | awk '{print $1}'`
+
+=== Stop all Kafka instances
+docker stop `docker ps -a | grep kafka- | awk '{print $1}'`
+
+// -------------------------------
+
+== Remove ==
+=== Remove all containers
+  docker rm $(docker ps -a -q)
+
+=== Remove all Kafka containers
+    Note: they need to be stopped
+      docker stop `docker ps -a | grep kafka- | awk '{print $1}'`
+      docker rm -v `docker ps -a | grep kafka- | awk '{print $1}'`
+
+=== Remove all Zookeeper containers
+    Note: All containers depend on Zookeeper, so stop all containers first
+      docker stop $(docker ps -a -q)
+      docker rm -v `docker ps -a | grep zk- | awk '{print $1}'`
+
+=== Prune docker Volumes and non-running containers
+  docker system prune
+  docker system prune --volumes
+
+// -------------------------------
+
+== Zookeeper
+
+ZOOKEEPER_SERVERS -> leaderport:electionport (source: https://docs.confluent.io/current/zookeeper/deployment.html)
+leaderport is used by followers to connect to the active leader. This port should be open between all ZooKeeper ensemble members.
+electionport is used to perform leader elections between ensemble members. This port should be open between all ZooKeeper ensemble members.
+
+
+=== Check ZooKeeper
+
+....
+for i in 22181 32181 42181; do
+  bash -c "echo stat | nc localhost $i | grep Mode"
+done
+....
+
+//-------------------------------------------------
+
+=== Test Schema Registry
+  $ docker logs schema-registry
+
+//-------------------------------------------------
+
+=== Adding the Cluster
+....
+Cluster-name: kafka-docker
+Cluster Zookeeper Hosts: 172.18.0.10:22181,172.18.0.11:32181,172.18.0.12:42181
+Enable JMX Polling...: Check
+brokerViewThreadPoolSize: 2
+offsetCacheThreadPoolSize: 2
+kafkaAdminClientThreadPoolSize: 2
+....
+//-------------------------------------------------
+
+== Topics
+
+=== Create a Topic
+
+IMPORTANT: SET ENV BELOW
+
+ TOPIC_NAME=foo
+
+....
+  kafka-topics --create \
+    --topic $TOPIC_NAME \
+    --partitions 1 \
+    --replication-factor 3 \
+    --if-not-exists \
+    --config min.insync.replicas=2 \
+    --zookeeper localhost:32181
+....
+
+=== List Topics including internal topics
+....
+  $ kafka-topics --list --zookeeper localhost:32181
+....
+
+=== List Topics without internal topics
+....
+  $ kafka-topics --list --exclude-internal --zookeeper localhost:32181
+....
+
+=== Remove all Topics but keep internal topics
+....
+
+CONFLUENT_DOCKER_IP=`docker-machine ip confluent`
+
+for TOPIC_NAME in \
+    kafka-topics --list --exclude-internal --zookeeper localhost:32181`
+do
+    kafka-topics --delete \
+    --topic $TOPIC_NAME \
+    --zookeeper $CONFLUENT_DOCKER_IP:32181
+done
+
+....
+
+=== Describe Topic
+....
+  $ kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:32181
+....
+=== Generate Data to Topic
+....
+  $ bash -c "seq 42 | kafka-console-producer --broker-list localhost:29092 --topic $TOPIC_NAME && echo 'Produced 42 messages.'"
+....
+=== Receive Data
+....
+  $ kafka-console-consumer --bootstrap-server localhost:29092 --topic $TOPIC_NAME --from-beginning --max-messages 42
+....
+== Run interactive shell

@@ -1,5 +1,8 @@
 == Komma igång
 
+Nedan följer instruktioner för att komma igång. Förhoppningsvis ska allt gå utan problem, annars får vi lösa det på kompetensdagen.
+Utför stegen nedan och håll tummarna för att det fungerar!
+
 === Installera docker och docker-compose
 Installera på det bästa sättet för din plattform
 
@@ -20,18 +23,37 @@ Klona repot (Moment 22 här, men det är antagligen löst om du kan läsa det h�
 
   $ git clone https://github.com/ryzlab/kafka-kompetensdag.git
 
-Starta kafkaklustret
+=== Starta kafkaklustret
 
   $ cd kafka-kompetensdag
   $ docker-compose up
 
+=== Testa Kafka-Manager
+
 Nu ska det gå att surfa till Kafka-Manager, ett Web-UI för att hantera Kafkakluster.
 Testa att surfa till http://localhost:9000
 
-Det ska även gå att kommunicera med klustret för att t.ex. lista skapade topics:
+=== Testa ZooKeeper
+
+Det ska även gå att kommunicera med Zookeeper för att t.ex. lista skapade topics:
 
   $ kafka-topics --list --zookeeper localhost:32181
   _schemas
+
+=== Testa Kafka
+
+Skapa ett Topic, foo
+  $ kafka-topics --create --topic foo --partitions 1 --replication-factor 3 --if-not-exists --config min.insync.replicas=2 --zookeeper localhost:32181
+
+Skicka några meddelanden med kafka-console-producer. Kör kommandot och skriv några rader text, avsluta med CTRL+D
+
+  $ kafka-console-producer --broker-list localhost:29092 --topic foo
+
+Kör en consumer för att få ut meddelandena
+
+  $ kafka-console-consumer --bootstrap-server localhost:29092 --topic foo --from-beginning
+
+Avsluta med CTRL+C
 
 YES!!! Redo!
 
