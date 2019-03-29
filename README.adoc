@@ -35,7 +35,7 @@ Starta kafkaklustret. Klustret består av 3 ZooKeeper, 3 KafkaBrokers, Schema Re
 === Testa Kafka-Manager
 
 Nu ska det gå att surfa till Kafka-Manager, ett Web-UI för att hantera Kafkakluster.
-Testa att surfa till http://localhost:9000
+Testa att surfa till http://localhost:9000. Vi konfigurerar på kompetensdagen, men sidan ska gå att nå.
 
 === Testa ZooKeeper
 
