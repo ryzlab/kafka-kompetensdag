@@ -11,10 +11,10 @@ https://docs.confluent.io/current/installation/docker/docs/installation/clustere
 
 == Start ==
 === Start all Zookeepers
-  docker start `docker ps -a | grep zk- | awk '{print $1}'`
+  docker start zk-1 zk-2 zk-3
 
 === Start all Kafka containers
-  docker start `docker ps -a | grep kafka- | awk '{print $1}'`
+  docker start kafka-1 kafka-2 kafka-3
 
 === Start a Docker instance
   docker start zk-1
@@ -23,29 +23,28 @@ https://docs.confluent.io/current/installation/docker/docs/installation/clustere
 
 == Stop ==
 === Stop all containers
-  docker stop $(docker ps -a -q)
+  docker stop kafka-1 kafka-2 kafka-3 kafka-manager schema-registry zk-1 zk-2 zk-3
 
 === Stop all Zookeepers
-  docker stop `docker ps -a | grep zk- | awk '{print $1}'`
+  docker stop zk-1 zk-2 zk-3
 
 === Stop all Kafka instances
-docker stop `docker ps -a | grep kafka- | awk '{print $1}'`
+docker stop kafka-1 kafka-2 kafka-3
 
 // -------------------------------
 
 == Remove ==
 === Remove all containers
-  docker rm $(docker ps -a -q)
+  docker rm kafka-1 kafka-2 kafka-3 kafka-manager schema-registry zk-1 zk-2 zk-3
 
 === Remove all Kafka containers
     Note: they need to be stopped
-      docker stop `docker ps -a | grep kafka- | awk '{print $1}'`
-      docker rm -v `docker ps -a | grep kafka- | awk '{print $1}'`
+      docker rm -v kafka-1 kafka-2 kafka-3
 
 === Remove all Zookeeper containers
     Note: All containers depend on Zookeeper, so stop all containers first
-      docker stop $(docker ps -a -q)
-      docker rm -v `docker ps -a | grep zk- | awk '{print $1}'`
+  docker stop kafka-1 kafka-2 kafka-3 kafka-manager schema-registry zk-1 zk-2 zk-3
+      docker rm -v zk-1 zk-2 zk-3
 
 === Prune docker Volumes and non-running containers
   docker system prune
