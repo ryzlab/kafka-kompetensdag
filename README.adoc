@@ -54,7 +54,7 @@ Skicka några meddelanden med kafka-console-producer. Kör kommandot och skriv n
 
   $ kafka-console-producer --broker-list localhost:29092 --topic foo
 
-Kör en consumer för att få ut meddelandena
+Kör en consumer för att få ut meddelandena, efter en stund ska raderna du skrev in komma ut på skärmen
 
   $ kafka-console-consumer --bootstrap-server localhost:29092 --topic foo --from-beginning
 
