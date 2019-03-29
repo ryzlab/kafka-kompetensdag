@@ -19,11 +19,12 @@ Packa upp distributionen och sätt PATH.
 
 === Kompetensdagsrepot
 
-Klona repot (Moment 22 här, men det är antagligen löst om du kan läsa det här)
+Klona repot
 
   $ git clone https://github.com/ryzlab/kafka-kompetensdag.git
 
 === Starta kafkaklustret
+Starta kafkaklustret. Klustret består av 3 ZooKeeper, 3 KafkaBrokers, Schema Registry och Kafka Manager
 
   $ cd kafka-kompetensdag
   $ docker-compose up
