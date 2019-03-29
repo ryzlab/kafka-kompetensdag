@@ -17,6 +17,9 @@ Packa upp distributionen och sätt PATH.
   $ cd confluent-5.1.2/bin
   $ export PATH=$PATH:`pwd`
 
+NOTE: Det är viktigt att sätta PATH till `.../confluent-5.1.2/bin` för att kafkakommandona (t.ex. kafka-topics och kafka-console-producer mm)
+som används i labbarna ska fungera
+
 === Kompetensdagsrepot
 
 Klona repot
