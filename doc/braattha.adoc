@@ -77,7 +77,7 @@ done
 === Adding the Cluster
 ....
 Cluster-name: kafka-docker
-Cluster Zookeeper Hosts: 172.18.0.10:22181,172.18.0.11:32181,172.18.0.12:42181
+Cluster Zookeeper Hosts: zk-1:2181,zk-2:2181,zk-3:2181
 Enable JMX Polling...: Check
 brokerViewThreadPoolSize: 2
 offsetCacheThreadPoolSize: 2
@@ -100,37 +100,35 @@ IMPORTANT: SET ENV BELOW
     --replication-factor 3 \
     --if-not-exists \
     --config min.insync.replicas=2 \
-    --zookeeper localhost:32181
+    --zookeeper localhost:2181,localhost:2182,localhost:2183
 ....
 
 === List Topics including internal topics
 ....
-  $ kafka-topics --list --zookeeper localhost:32181
+  $ kafka-topics --list --zookeeper localhost:2181,localhost:2182,localhost:2183
 ....
 
 === List Topics without internal topics
 ....
-  $ kafka-topics --list --exclude-internal --zookeeper localhost:32181
+  $ kafka-topics --list --exclude-internal --zookeeper localhost:2181,localhost:2182,localhost:2183
 ....
 
 === Remove all Topics but keep internal topics
 ....
 
-CONFLUENT_DOCKER_IP=`docker-machine ip confluent`
-
 for TOPIC_NAME in \
-    kafka-topics --list --exclude-internal --zookeeper localhost:32181`
+    kafka-topics --list --exclude-internal --zookeeper localhost:2181,localhost:2182,localhost:2183`
 do
     kafka-topics --delete \
     --topic $TOPIC_NAME \
-    --zookeeper $CONFLUENT_DOCKER_IP:32181
+    --zookeeper localhost:2181,localhost:2182,localhost:2183
 done
 
 ....
 
 === Describe Topic
 ....
-  $ kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181
+  $ kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181,localhost:2182,localhost:2183
 ....
 === Generate Data to Topic
 ....

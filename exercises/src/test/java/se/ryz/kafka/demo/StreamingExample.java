@@ -20,7 +20,7 @@ import java.util.concurrent.Future;
  kafka-topics --delete \
  --if-exists \
  --topic $TOPIC_NAME \
- --zookeeper localhost:22181,localhost:32181,localhost:42181
+ --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 
  # Create Topic
@@ -32,10 +32,10 @@ import java.util.concurrent.Future;
  --replication-factor $REPLICATION_FACTOR \
  --if-not-exists \
  --config min.insync.replicas=2 \
- --zookeeper localhost:22181,localhost:32181,localhost:42181
+ --zookeeper localhost:2181,localhost:2182,localhost:2183
 
  # Describe the Topic
- kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:22181,localhost:32181,localhost:42181
+ kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181,localhost:2182,localhost:2183
 
  */
 

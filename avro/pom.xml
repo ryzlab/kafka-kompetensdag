@@ -4,16 +4,16 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>se.ryz.kafka</groupId>
-        <artifactId>kafka-hello-world</artifactId>
+        <artifactId>kafka-kompetensdag</artifactId>
         <relativePath>../pom.xml</relativePath>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
 
     <groupId>se.ryz.kafka</groupId>
-    <artifactId>kafka-hello-world-avro</artifactId>
+    <artifactId>kafka-kompetensdag-avro</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>kafka-hello-world-avro</name>
+    <name>kafka-kompetensdag-avro</name>
 
     <build>
         <plugins>

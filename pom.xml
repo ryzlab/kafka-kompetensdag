@@ -4,9 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>se.ryz.kafka</groupId>
-    <artifactId>kafka-hello-world</artifactId>
+    <artifactId>kafka-kompetensdag</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>kafka-hello-world</name>
+    <name>kafka-kompetensdag</name>
     <description>Builds subprojects</description>
 
     <packaging>pom</packaging>
@@ -99,7 +99,7 @@
             </dependency>
             <dependency>
                 <groupId>se.ryz.kafka</groupId>
-                <artifactId>kafka-hello-world-avro</artifactId>
+                <artifactId>kafka-kompetensdag-avro</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
         </dependencies>

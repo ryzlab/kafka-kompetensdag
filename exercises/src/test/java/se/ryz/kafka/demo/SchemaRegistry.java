@@ -24,7 +24,7 @@ import java.util.Properties;
  kafka-topics --delete \
  --if-exists \
  --topic $TOPIC_NAME \
- --zookeeper localhost:22181,localhost:32181,localhost:42181
+ --zookeeper localhost:2181,localhost:2182,localhost:2183
 
  # Create Topic
  PARTITION_COUNT=2
@@ -36,7 +36,7 @@ import java.util.Properties;
  --replication-factor $REPLICATION_FACTOR \
  --if-not-exists \
  --config min.insync.replicas=2 \
- --zookeeper localhost:22181,localhost:32181,localhost:42181
+ --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 
  TOPIC_NAME=zombiefight-avro-recordname-topic
@@ -44,7 +44,7 @@ import java.util.Properties;
  kafka-topics --delete \
  --if-exists \
  --topic $TOPIC_NAME \
- --zookeeper localhost:22181,localhost:32181,localhost:42181
+ --zookeeper localhost:2181,localhost:2182,localhost:2183
 
  # Create Topic
  PARTITION_COUNT=2
@@ -56,7 +56,7 @@ import java.util.Properties;
  --replication-factor $REPLICATION_FACTOR \
  --if-not-exists \
  --config min.insync.replicas=2 \
- --zookeeper localhost:22181,localhost:32181,localhost:42181
+ --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 
  */

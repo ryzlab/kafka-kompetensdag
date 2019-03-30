@@ -43,7 +43,6 @@ services:
     container_name: "kafka-1"
     image: confluentinc/cp-kafka:5.1.2
     ports:
-      #        - "60001:60001"
       - "9092:9092"
     environment:
       KAFKA_BROKER_ID: "1"
@@ -63,12 +62,10 @@ services:
     container_name: "kafka-2"
     image: confluentinc/cp-kafka:5.1.2
     ports:
-#      - "60002:60002"
       - "9093:9093"
     environment:
       KAFKA_BROKER_ID: "2"
       KAFKA_JMX_PORT: "60002"
-      # Tried with 'kafka-1' but then kafka-manager could not connect
       KAFKA_JMX_HOSTNAME: "kafka-2"
       KAFKA_ZOOKEEPER_CONNECT: "zk-1:2181,zk-2:2181,zk-3:2181"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,ADVERTISED_LISTENER:PLAINTEXT
@@ -83,7 +80,6 @@ services:
     container_name: "kafka-3"
     image: confluentinc/cp-kafka:5.1.2
     ports:
-#      - "60003:60003"
       - "9094:9094"
     environment:
       KAFKA_BROKER_ID: "3"

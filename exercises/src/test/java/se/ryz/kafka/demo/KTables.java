@@ -30,7 +30,7 @@ Open up a shell and remember to set PATH to .../confluent-x.y.z/bin
     kafka-topics --delete \
         --if-exists \
         --topic $TOPIC_NAME \
-        --zookeeper localhost:22181,localhost:32181,localhost:42181
+        --zookeeper localhost:2181,localhost:2182,localhost:2183
 
  # Create Topic(s) for Lab
  PARTITION_COUNT=2
@@ -43,7 +43,7 @@ Open up a shell and remember to set PATH to .../confluent-x.y.z/bin
  --replication-factor $REPLICATION_FACTOR \
  --if-not-exists \
  --config min.insync.replicas=2 \
- --zookeeper localhost:22181,localhost:32181,localhost:42181
+ --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 # END   ---------- First Topic, the input to the KTable ----------
 
@@ -56,7 +56,7 @@ Open up a shell and remember to set PATH to .../confluent-x.y.z/bin
  kafka-topics --delete \
  --if-exists \
  --topic $TOPIC_NAME \
- --zookeeper $CONFLUENT_DOCKER_IP:32181
+ --zookeeper localhost:2181,localhost:2182,localhost:2183
 
  # Create Topic
  PARTITION_COUNT=2
@@ -68,12 +68,12 @@ Open up a shell and remember to set PATH to .../confluent-x.y.z/bin
  --replication-factor $REPLICATION_FACTOR \
  --if-not-exists \
  --config min.insync.replicas=2 \
- --zookeeper localhost:22181,localhost:32181,localhost:42181
+ --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 # END   ---------- Second Topic, the output from the KTable ----------
 
 # To verify that the creation of the topic was successful:
-kafka-topics --describe --topic $TOPIC_NAME --zookeeper $CONFLUENT_DOCKER_IP:32181
+kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181,localhost:2182,localhost:2183
 
  */
 public class KTables {

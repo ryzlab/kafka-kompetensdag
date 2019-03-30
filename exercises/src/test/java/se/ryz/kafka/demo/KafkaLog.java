@@ -16,7 +16,7 @@ package se.ryz.kafka.demo;
     kafka-topics --delete \
     --if-exists \
     --topic $TOPIC_NAME \
-    --zookeeper localhost:22181,localhost:32181,localhost:42181
+    --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 
     # Create Topic
@@ -27,16 +27,16 @@ package se.ryz.kafka.demo;
     --replication-factor 3 \
     --if-not-exists \
     --config min.insync.replicas=2 \
-    --zookeeper localhost:22181,localhost:32181,localhost:42181
+    --zookeeper localhost:2181,localhost:2182,localhost:2183
 
     # Kafkas log files are stored in /var/lib/kafka/data. Connect to the container for 'kafka-1' and
     # List files in that directory and see that the log file ending with '.log' is empty.
     docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-topic-0"
 
-    # Produce messages to Topic with console producer. Run the command below, type a few one-liners and exit with CTRL+D
+    # Produce messages to Topic with console producer. Run the command below, type a few one-liners and exit with CTRL+C
 
     kafka-console-producer \
-    --broker-list localhost:29092,localhost:39092,localhost:49092 \
+    --broker-list localhost:9092,localhost:9093,localhost:9094 \
     --topic $TOPIC_NAME
 
     # Now run interactive shell and see that we have data in the file ending with '.log'
