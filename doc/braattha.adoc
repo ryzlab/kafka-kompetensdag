@@ -62,7 +62,7 @@ electionport is used to perform leader elections between ensemble members. This 
 === Check ZooKeeper
 
 ....
-for i in 22181 32181 42181; do
+for i in 2181 2182 2183; do
   bash -c "echo stat | nc localhost $i | grep Mode"
 done
 ....
@@ -130,14 +130,14 @@ done
 
 === Describe Topic
 ....
-  $ kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:32181
+  $ kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181
 ....
 === Generate Data to Topic
 ....
-  $ bash -c "seq 42 | kafka-console-producer --broker-list localhost:29092 --topic $TOPIC_NAME && echo 'Produced 42 messages.'"
+  $ bash -c "seq 42 | kafka-console-producer --broker-list localhost:9092 --topic $TOPIC_NAME && echo 'Produced 42 messages.'"
 ....
 === Receive Data
 ....
-  $ kafka-console-consumer --bootstrap-server localhost:29092 --topic $TOPIC_NAME --from-beginning --max-messages 42
+  $ kafka-console-consumer --bootstrap-server localhost:9092 --topic $TOPIC_NAME --from-beginning --max-messages 42
 ....
 == Run interactive shell
