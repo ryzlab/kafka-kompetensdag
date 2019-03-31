@@ -43,7 +43,7 @@ Create a Topic with two partitions
  kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181,localhost:2182,localhost:2183
 
  # Look at consumer offset
- $ kafka-consumer-groups --bootstrap-server localhost:9092  --group sameGroupIdBetweenRuns --describe
+ kafka-consumer-groups --bootstrap-server localhost:9092  --group sameGroupIdBetweenRuns --describe
 
  */
 public class ReprocessMessages {
