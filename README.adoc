@@ -13,7 +13,7 @@ Confluent Platform distribueras som en tarboll eller zip. Den laddas hem från C
 Surfa till https://www.confluent.io/download, klicka på "Download Version 5.1.2" och följ instruktionerna
 Packa upp distributionen och sätt PATH.
 
-  $ unzip confluent-5.1.2-2.11.zip
+  $ tar xzf confluent-5.1.2-2.11.zip
   $ cd confluent-5.1.2/bin
   $ export PATH=$PATH:`pwd`
 
@@ -37,13 +37,6 @@ Starta kafkaklustret. Klustret består av 3 ZooKeeper, 3 KafkaBrokers, Schema Re
 Nu ska det gå att surfa till Kafka-Manager, ett Web-UI för att hantera Kafkakluster.
 Testa att surfa till http://localhost:9000. Vi konfigurerar på kompetensdagen, men sidan ska gå att nå.
 
-=== Testa ZooKeeper
-
-Det ska även gå att kommunicera med Zookeeper för att t.ex. lista skapade topics:
-
-  $ kafka-topics --list --zookeeper localhost:2181,localhost:2182,localhost:2183
-  _schemas
-
 === Testa Kafka
 
 Skapa ett Topic, foo
@@ -56,9 +49,19 @@ Skicka några meddelanden med kafka-console-producer. Kör kommandot och skriv n
 
 Kör en consumer för att få ut meddelandena, efter en stund ska raderna du skrev in komma ut på skärmen
 
-  $ kafka-console-consumer --bootstrap-server localhost:29092 --topic foo --from-beginning
+  $ kafka-console-consumer --bootstrap-server localhost:9092 --topic foo --from-beginning
 
 Avsluta med CTRL+C
+
+=== Testa ZooKeeper
+
+Det ska även gå att kommunicera med Zookeeper för att t.ex. lista skapade topics:
+
+  $ kafka-topics --list --zookeeper localhost:2181,localhost:2182,localhost:2183
+  __consumer_offsets
+  _schemas
+  foo
+
 
 YES!!! Redo!
 
