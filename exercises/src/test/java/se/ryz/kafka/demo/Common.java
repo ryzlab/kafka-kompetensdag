@@ -21,13 +21,20 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+/**
+ * Convenience when running examples. Use this class to create Consumer/Producer properties etc.
+ */
 public class Common {
+    /** Use this constant to get a reference to the Kafka Cluster */
     public static final String KAFKA_BROKERS = "localhost:9092,localhost:9093,localhost:9094" ;
-
+    /** Use this constant to get a reference to the Schema Registry */
     public static final String SCHEMA_REGISTRY_URL = "http://localhost:8081";
-
+    /** Use to connect to ZooKeeper ensemble */
+    public static final String ZOOKEEPERS = "localhost:2181,localhost:2182,localhost:2183";
+    /** Points to next label to return by {@link Common#getNextLabel()} */
     private int labelIndex;
 
+    /** Labels that can be used when sending messages. Use convenience methods {@link Common#getNextLabel()} and {@link Common#getRandomLabel(int)} */
     private static String[] LABELS = {
             "Zombieland",
             "mad zombie disease",
@@ -77,6 +84,13 @@ public class Common {
             "Red Queen"
     };
 
+    /**
+     * Will return a random label among the setSize first labels in the array {@link Common#LABELS}.
+     * Useful to continously send messages but only use a certain number of
+     * labels.
+     * @param setSize Number of labels to consider when returning one
+     * @return A random label among the setSize first labels in {@link Common#LABELS}.
+     */
     public String getRandomLabel(int setSize) {
         return LABELS[(int)(Math.random()*setSize) % LABELS.length];
     }
@@ -85,11 +99,21 @@ public class Common {
         labelIndex = 0;
     }
 
+    /**
+     * Loops continously over {@link Common#LABELS} and returns the next one
+     * @return A label in {@link Common#LABELS}
+     */
     public String getNextLabel() {
         labelIndex %= LABELS.length;
         return LABELS[labelIndex++];
     }
 
+    /**
+     * Convenience method for creating Kafka Consumer properties to use with KafkaConsumer
+     * @param groupId Necessary Consumer Group ID. Cannot be null
+     * @param clientId Optional Client ID, the client ID can be used to correlate events in Kafka with a certain client.
+     * @return Created Properties object with some defaults.
+     */
     public Properties createConsumerConfig(String groupId, String clientId) {
         final Properties props = new Properties();
         // Where to find Kafka broker(s).
@@ -115,6 +139,12 @@ public class Common {
         return props;
     }
 
+    /**
+     * Convenience method for creating Kafka Consumer properties to use with Kafka Streams Client
+     * @param applicationId Necessary Application ID used to group consumers
+     * @param clientId An optional Identifier that can be used to correlate consumer activity in Kafka.
+     * @return A Properties object with defaults.
+     */
     public Properties createStreamsClientConfiguration(String applicationId, String clientId) {
         final Properties props = new Properties();
         // Where to find Kafka broker(s).
@@ -182,7 +212,13 @@ public class Common {
         //producer.close();
     }
 
-    public void runSubscriptionConsumer(String topicName, String groupId, String clientId) throws InterruptedException {
+    /**
+     * Uses Kafka Processor API to continously consume {@link ConsumerRecords}.
+     * @param topicName Topic to consume from. The Topic has to be created before calling this method
+     * @param groupId The Consumer Group ID for this consumer.
+     * @param clientId Optional Client ID
+     */
+    public void runSubscriptionConsumer(String topicName, String groupId, String clientId) {
         Common common = new Common();
         Properties props = common.createConsumerConfig(groupId, clientId);
         // Create the consumer and subscribe
@@ -202,7 +238,4 @@ public class Common {
             }
         }
     }
-
-
-
 }
