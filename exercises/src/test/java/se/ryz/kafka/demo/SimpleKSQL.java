@@ -30,23 +30,33 @@ import java.util.Random;
  --config min.insync.replicas=2 \
  --zookeeper localhost:2181,localhost:2182,localhost:2183
 
-  # Start ksql
-  ksql
-
-  # Create a stream of net events
-  CREATE STREAM messages WITH (KAFKA_TOPIC='simple-ksql', VALUE_FORMAT='DELIMITED');
-  SELECT * FROM messages;
-
   # Now run Run the produceMessages() method
+
+  # In a shell, start ksql
+  ksql
 
   # In the KSQL shell:
   # We can view topics
-  show topics;
-
-
+  ksql> show topics;
 
   # When the produceMessages() method is running, we can print the messages
-  print 'simple-ksql';
+  ksql> print 'simple-ksql';
+
+  # Create a stream of events
+  ksql> CREATE STREAM characters_stream_original (character VARCHAR, plays VARCHAR, drinks VARCHAR) WITH (kafka_topic='simple-ksql', value_format='JSON', key = 'character');
+  # Display info about the stream
+  ksql> describe characters_stream_original;
+  # Show data from the stream
+  ksql> select * from characters_stream_original;
+
+  # Create a table
+  ksql> CREATE TABLE characters_original (character VARCHAR, plays VARCHAR, drinks VARCHAR) WITH (kafka_topic='simple-ksql', value_format='JSON', key = 'character');
+
+  # Show info about table
+  ksql> describe characters_original;
+
+  # View its data
+  ksql> select * from characters_original;
  */
 public class SimpleKSQL {
 
