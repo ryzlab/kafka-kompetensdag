@@ -113,3 +113,13 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zk-1:2181,zk-2:2181,zk-3:2181"
       SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
       SCHEMA_REGISTRY_HOST_NAME: "schema-registry"
+
+  ksql-server:
+    container_name: "ksql-server"
+    image: "confluentinc/cp-ksql-server:5.1.2"
+    ports:
+      - "8088:8088"
+    environment:
+      KSQL_BOOTSTRAP_SERVERS: kafka-1:19092
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081

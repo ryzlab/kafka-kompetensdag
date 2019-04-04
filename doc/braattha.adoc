@@ -87,6 +87,8 @@ kafkaAdminClientThreadPoolSize: 2
 
 == Topics
 
+Commands with examples: https://cwiki.apache.org/confluence/display/KAFKA/Replication+tools
+
 === Create a Topic
 
 IMPORTANT: SET ENV BELOW
