@@ -32,9 +32,6 @@ public class Common {
     /** Points to next label to return by {@link Common#getNextLabel()} */
     private int labelIndex;
 
-    Map<String, List<String>> movies = new HashMap<>();
-
-
     /** Labels that can be used when sending messages. Use convenience methods {@link Common#getNextLabel()} and {@link Common#getRandomLabel(int)} */
     private static String[] LABELS = {
             "Zombieland",
@@ -98,66 +95,7 @@ public class Common {
 
     public Common() {
         labelIndex = 0;
-        movies = new HashMap<>();
-        movies.put("Zombieland", Arrays.asList(
-                "mad zombie disease",
-                "Columbus",
-                "Tallahassee",
-                "Twinkies",
-                "Wichita",
-                "Little Rock",
-                "Pacific Playland",
-                "Cardio",
-                "Double tap",
-                "Beware of bathrooms",
-                "Seatbelts",
-                "Limber up",
-                "Enjoy the little things"
-            ));
-        movies.put("Shaun of the Dead", Arrays.asList(
-                "Shaun",
-                "Philip",
-                "Liz",
-                "Ed",
-                "The Winchester",
-                "Zombie Apocalypse",
-                "Barbara"
-                ));
-        movies.put("Dawn of the Dead", Arrays.asList(
-                "WGON TV",
-                "Crossroads Shopping Mall",
-                "Ana",
-                "Kenneth",
-                "Michael",
-                "Andre",
-                "Steve"
-                ));
-        movies.put("Dead Snow", Arrays.asList(
-                "Nazi zombies",
-                "Herzog",
-                "Martin",
-                "Roy",
-                "Hanna",
-                "Vegard",
-                "Liv"
-                ));
-        movies.put("What We Do in the Shadows", Arrays.asList(
-                "Viago",
-                "Vladislav",
-                "Deacon",
-                "Petyr",
-                "Procession of Shame",
-                "We're Werewolves, not Swear-Wolves"
-        ));
-        movies.put("Resident Evil", Arrays.asList(
-                "T-Virus",
-                "Umbrella Corporation",
-                "Rain",
-                "Alice",
-                "The Hive",
-                "Raccoon City",
-                "Red Queen"
-        ));
+
     }
 
     /**
@@ -167,10 +105,6 @@ public class Common {
     public String getNextLabel() {
         labelIndex %= LABELS.length;
         return LABELS[labelIndex++];
-    }
-
-    public Map<String, List<String>> getMovies() {
-        return movies;
     }
 
     /**
