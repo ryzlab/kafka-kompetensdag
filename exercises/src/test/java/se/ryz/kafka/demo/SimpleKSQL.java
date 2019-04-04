@@ -1,12 +1,13 @@
 package se.ryz.kafka.demo;
 
+import com.github.javafaker.Faker;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.Test;
 
+import javax.json.Json;
 import java.util.Properties;
-import java.util.concurrent.Future;
+import java.util.Random;
 
 /*
 
@@ -38,25 +39,47 @@ import java.util.concurrent.Future;
 
   # Now run Run the produceMessages() method
 
+  # In the KSQL shell:
+  # We can view topics
+  show topics;
 
+
+
+  # When the produceMessages() method is running, we can print the messages
+  print 'simple-ksql';
  */
 public class SimpleKSQL {
+
+    private void sendMessage(String topicName, Faker key, Faker value, KafkaProducer<String, String> producer) {
+        String json = Json.createObjectBuilder()
+                .add("character", key.lebowski().character())
+                .add("plays", value.esports().game())
+                .add("drinks", value.beer().name())
+                .build()
+                .toString();
+        ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key.lebowski().actor(), json);
+        producer.send(record);
+        producer.flush();
+        System.out.println("Sent " + record);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // ignore
+        }
+
+    }
 
     @Test
     public void produceMessages() throws InterruptedException {
         Common common = new Common();
-        String topicName = "simple-ksql" ;
+        String topicName = "simple-ksql";
+
+        Faker valueFaker = new Faker();
         Properties producerProperties = common.createProcessorProducerProperties("simpleKSQLProducer");
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
-        for (int cnt=0; ;cnt++) {
-            System.out.println ("Producing message " + cnt + " to topic '" + topicName + "'");
-            ProducerRecord<String, String> record = new ProducerRecord<>(topicName, "Message no " + cnt, common.getNextLabel());
-            producer.send(record);
-            producer.flush();
-
-            Thread.sleep(2000);
+        while (true) {
+            Faker keyFaker = new Faker(new Random((int) (Math.random() * 5)));
+            sendMessage(topicName, keyFaker, valueFaker, producer);
         }
-
-
     }
 }
