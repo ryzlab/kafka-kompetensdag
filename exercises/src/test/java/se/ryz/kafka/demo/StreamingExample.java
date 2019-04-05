@@ -1,5 +1,6 @@
 package se.ryz.kafka.demo;
 
+import com.github.javafaker.Faker;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -76,7 +77,7 @@ public class StreamingExample {
 
     /**
      * Write a producer that sends messages of the type '<'String, String'>' to the topic TOPIC_NAME.
-     * Tip: To send messages with a simple value, use {@link Common#getNextLabel()}
+     * Tip: To send messages with a simple value, use {@link Faker}
      *
      * @throws ExecutionException
      * @throws InterruptedException
@@ -85,9 +86,10 @@ public class StreamingExample {
     public void BproduceMessages() throws ExecutionException, InterruptedException {
         Common common = new Common();
         Properties producerProperties = common.createProcessorProducerProperties(this.getClass().getName() + "-producer-client");
+        Faker faker = new Faker();
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
         for (;;) {
-            ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, null, common.getNextLabel());
+            ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, null, faker.lebowski().quote());
             Future<RecordMetadata> recordMetadataFuture = producer.send(record);
             producer.flush();
             RecordMetadata recordMetadata = recordMetadataFuture.get();

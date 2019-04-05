@@ -1,5 +1,6 @@
 package se.ryz.kafka.demo;
 
+import com.github.javafaker.Faker;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -83,7 +84,7 @@ public class Parallelism {
 
     /**
      * Write a KafkaProducer that sends messages to TOPIC_NAME with the same key. Sleep 2 seconds between messages.
-     * Tip: Use {@link Common#getNextLabel()} and use it as the message value.
+     * Tip: Use Faker to produce messages with content
      * @throws InterruptedException
      * @throws ExecutionException
      */
@@ -91,9 +92,10 @@ public class Parallelism {
     public void BrunProducerWithSameKey() throws InterruptedException, ExecutionException {
         Common common = new Common();
         Properties producerProperties = common.createProcessorProducerProperties("consumerRebalancingProducer");
+        Faker faker = new Faker();
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
         for (int cnt=0; ;cnt++) {
-            ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, "0", common.getNextLabel());
+            ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, "0", faker.rickAndMorty().character());
             Future<RecordMetadata> recordMetadataFuture = producer.send(record);
             producer.flush();
             RecordMetadata recordMetadata = recordMetadataFuture.get();
@@ -105,7 +107,7 @@ public class Parallelism {
 
     /**
      * Write a KafkaProducer that sends messages to TOPIC_NAME with a null key. Sleep 2 seconds between messages.
-     * Tip: Use {@link Common#getNextLabel()} and use it as the message value.
+     * Tip: Use {@link Faker} to produce the message value.
      *
      * @throws InterruptedException
      * @throws ExecutionException

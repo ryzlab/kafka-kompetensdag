@@ -29,83 +29,9 @@ public class Common {
     public static final String SCHEMA_REGISTRY_URL = "http://localhost:8081";
     /** Use to connect to ZooKeeper ensemble */
     public static final String ZOOKEEPERS = "localhost:2181,localhost:2182,localhost:2183";
-    /** Points to next label to return by {@link Common#getNextLabel()} */
-    private int labelIndex;
-
-    /** Labels that can be used when sending messages. Use convenience methods {@link Common#getNextLabel()} and {@link Common#getRandomLabel(int)} */
-    private static String[] LABELS = {
-            "Zombieland",
-            "mad zombie disease",
-            "Columbus",
-            "Tallahassee",
-            "Twinkies",
-            "Wichita",
-            "Little Rock",
-            "Pacific Playland",
-            "Cardio",
-            "Double tap",
-            "Beware of bathrooms",
-            "Seatbelts",
-            "Limber up",
-            "Enjoy the little things",
-            "Shaun",
-            "Philip",
-            "Liz",
-            "Ed",
-            "The Winchester",
-            "Zombie Apocalypse",
-            "Barbara",
-            "Shaun of the Dead",
-            "Dawn of the Dead",
-            "WGON TV",
-            "Nazi zombies",
-            "Dead Snow",
-            "Herzog",
-            "Martin",
-            "Roy",
-            "Hanna",
-            "Vegard",
-            "Liv",
-            "What We Do in the Shadows",
-            "Viago",
-            "Vladislav",
-            "Deacon",
-            "Petyr",
-            "Procession of Shame",
-            "We're Werewolves, not Swear-Wolves",
-            "T-Virus",
-            "Umbrella Corporation",
-            "Rain",
-            "Alice",
-            "The Hive",
-            "Raccoon City",
-            "Red Queen"
-    };
-
-    /**
-     * Will return a random label among the setSize first labels in the array {@link Common#LABELS}.
-     * Useful to continously send messages but only use a certain number of
-     * labels.
-     * @param setSize Number of labels to consider when returning one
-     * @return A random label among the setSize first labels in {@link Common#LABELS}.
-     */
-    public String getRandomLabel(int setSize) {
-        return LABELS[(int)(Math.random()*setSize) % LABELS.length];
-    }
 
     public Common() {
-        labelIndex = 0;
-
-    }
-
-    /**
-     * Loops continously over {@link Common#LABELS} and returns the next one
-     * @return A label in {@link Common#LABELS}
-     */
-    public String getNextLabel() {
-        labelIndex %= LABELS.length;
-        return LABELS[labelIndex++];
-    }
+     }
 
     /**
      * Convenience method for creating Kafka Consumer properties to use with KafkaConsumer

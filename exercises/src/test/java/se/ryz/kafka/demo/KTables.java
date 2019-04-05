@@ -1,5 +1,6 @@
 package se.ryz.kafka.demo;
 
+import com.github.javafaker.Faker;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -12,6 +13,7 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.junit.Test;
 
 import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -97,7 +99,8 @@ public class KTables {
         Properties producerProperties = common.createProcessorProducerProperties(null);
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
         for (int cnt = 0; ; cnt++) {
-            String value = common.getRandomLabel(6);
+            Faker faker = new Faker(new Random((int) (Math.random() * 6)));
+            String value = faker.ancient().god();
             String key = null ;
             ProducerRecord<String, String> record = new ProducerRecord<>("counter-topic", key, value);
             Future<RecordMetadata> recordMetadataFuture = producer.send(record);
