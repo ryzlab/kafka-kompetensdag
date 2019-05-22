@@ -109,10 +109,7 @@ public class DemoTest {
 
 
     /**
-     * Print registered topics to console
-     *
-      * @throws ExecutionException
-     * @throws InterruptedException
+     * Prints registered topics to console
      */
     @Test
     public void describeTopics() throws ExecutionException, InterruptedException {
@@ -195,22 +192,6 @@ public class DemoTest {
             //}
         }
     }
-
-    public static void main(String[] args) {
-        new DemoTest();
-    }
-
-//    public DemoTest() {
-//        Properties streamsConfiguration = createStreamsConfig(null, "clientId");
-//
-//        final StreamsBuilder builder = new StreamsBuilder();
-//        final KStream<String, String> textLines = builder.stream("everything-topic");
-//        final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
-//        textLines.foreach((key, value) -> System.out.println("Key: " + key + ", value: " + value));
-//        streams.cleanUp();
-//        streams.start();
-//
-//    }
 
     /**
      * Tries to send messages to a non-existing Topic
@@ -327,111 +308,6 @@ public class DemoTest {
 
     }
 
-    @Test
-    public void schemaFromFileConsumer() throws IOException, InterruptedException {
-        //Schema schema = new Schema.Parser().parse(new FileInputStream("../avro/src/main/avro/kafka-hello-world.avsc"));
-        Schema schema = ZombieWeapon.SCHEMA$;
-
-
-        Common common = new Common();
-        Properties streamsConfiguration = common.createStreamsClientConfiguration(this.getClass().getName() + "-application" + UUID.randomUUID().toString(), this.getClass().getName() + "-client");
-        streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.ByteBuffer().getClass().getName());
-        // In the subsequent lines we define the processing topology of the Streams application.
-        final StreamsBuilder builder = new StreamsBuilder();
-
-        final KStream<String, ByteBuffer> messageStream = builder.stream("schema-registry-avro");
-        messageStream.foreach((key, value) -> {
-            System.out.println("Key: " + key + ", value: " + value.array().length);
-            try {
-                DatumReader<GenericRecord> datumReader = new GenericDatumReader<GenericRecord>(schema);
-
-                int size = value.array().length;
-                int headerSize = 5;
-                byte[] buf = new byte[size-headerSize];
-                value.position(headerSize);
-                value.get(buf);
-
-                BinaryDecoder decoder =DecoderFactory.get().binaryDecoder(buf, null);
-                GenericRecord record = datumReader.read(null, decoder);
-                System.out.println("Record: " + record);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-
-        // Create and start the stream
-        final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
-        streams.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-        for (; ; ) {
-            Thread.sleep(1000);
-        }
-/*
-
-        final Properties props = new Properties();
-        // Where to find Kafka broker(s).
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS);
-        // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
-        // against which the application is run. A new Application ID -> consume from beginning
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "serde-test-app-" + UUID.randomUUID().toString());
-
-        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.ByteArray().getClass().getName());
-        props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class);
-        // If we do not commit and restart, we will get messages since last commit again when we restart
-        props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, "5000");
-
-        final StreamsBuilder builder = new StreamsBuilder();
-        final KStream<String, byte[]> schemaRegistryAvro = builder.stream("schema-registry-avro");
-        final KafkaStreams streams = new KafkaStreams(builder.build(), props);
-        schemaRegistryAvro.foreach((key, value) -> {
-            System.out.println("Key: " + key + ", value: " + value.length);
-        });
-        streams.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-        for(;;) {
-            try {
-                Thread.sleep(1999);
-            } catch (InterruptedException ex) {
-                // Ignore
-            }
-        }*/
-    }
-
-    @Test
-    public void schemaFromFileProducer() {
-        /*
-         kafka-topics --create \
- --topic schema-registry-avro \
- --partitions 1 \
- --replication-factor 1 \
- --if-not-exists \
- --config min.insync.replicas=1 \
- --zookeeper localhost:2181,localhost:2182,localhost:2183
-
-         */
-        Common common = new Common();
-        Properties props = common.createProcessorProducerProperties(null);
-        // Override Value Serializer to be Avro
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
-        // Override the default Key and Value name strategy
-        props.put(AbstractKafkaAvroSerDeConfig.KEY_SUBJECT_NAME_STRATEGY, RecordNameStrategy.class);
-        props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, Common.SCHEMA_REGISTRY_URL);
-
-        KafkaProducer<String, ZombieWeapon> producer = new KafkaProducer<>(props);
-        for (int cnt=0; cnt < 10; cnt++) {
-            Axe weapon = new Axe(8 + cnt);
-            ZombieWeapon zombieWeapon = new ZombieWeapon("Axe", weapon);
-            ProducerRecord<String, ZombieWeapon> record = new ProducerRecord<>("schema-registry-avro", "fight! Round " + cnt, zombieWeapon);
-            producer.send(record);
-
-        }
-        System.out.println ("Sent messages.");
-        producer.flush();
-        producer.close();
-
-    }
 
 
 

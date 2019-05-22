@@ -88,7 +88,7 @@ public class Common {
         // Specify (de)serializers for record keys values.
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class);
+        //props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class);
         // If we do not commit and restart, we will get messages since last commit again when we restart
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, "5000");
         return props;
@@ -151,7 +151,7 @@ public class Common {
         consumer.subscribe(Arrays.asList(topicName));
         // Poll for records and process them
         for (;;) {
-            ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofSeconds(1));
+            ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofSeconds(5));
             if (consumerRecords.isEmpty()) {
                 System.out.println("No records received") ;
             } else {
