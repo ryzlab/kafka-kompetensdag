@@ -5,6 +5,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.Test;
+import se.ryz.kafka.demo.util.Common;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -16,7 +17,7 @@ Open up a shell and remember to set PATH to .../confluent-x.y.z/bin
 
 We will be using one Topic
 
-TOPIC_NAME=consumer-rebalance-topic
+TOPIC_NAME=consumer-rebalance
 
 # Delete Topic if it exists
 kafka-topics --delete \
@@ -42,18 +43,18 @@ kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181,localhost
  */
 public class Parallelism {
 
-    private static final String TOPIC_NAME = "consumer-rebalance-topic";
+    private static final String TOPIC_NAME = "consumer-rebalance";
 
     /**
      * Lab instructions:
      * We will test consumer rebalancing that occurs when clients are added/removed from a Kafka Consumer Group.
      * We will test message distribution that depends on the message key and see how Kafka distributes messages
      * to consumers.
-     * 1. We have 2 partitions, so run {@link Parallelism#ArunConsumerWithSubscription()} twice, each in its own tab and keep them running
-     * 2. Run {@link Parallelism#BrunProducerWithSameKey()}. What happens and why?
-     * 3. Stop {@link Parallelism#BrunProducerWithSameKey()}
-     * 4. Start {@link Parallelism#CrunProducerWithNullKey()}. What happens and why?
-     * 5. Start a third {@link Parallelism#ArunConsumerWithSubscription()}. What happens and why?
+     * 1. We have 2 partitions, so run {@link Parallelism#runConsumerWithSubscription()} twice, each in its own tab and keep them running
+     * 2. Run {@link Parallelism#runProducerWithSameKey()}. What happens and why?
+     * 3. Stop {@link Parallelism#runProducerWithSameKey()}
+     * 4. Start {@link Parallelism#runProducerWithNullKey()}. What happens and why?
+     * 5. Start a third {@link Parallelism#runConsumerWithSubscription()}. What happens and why? (Hint: How many partitions do we have?)
      */
 
     /**
@@ -61,7 +62,7 @@ public class Parallelism {
      * @throws InterruptedException
      */
     @Test
-    public void ArunConsumerWithSubscription() throws InterruptedException {
+    public void runConsumerWithSubscription() throws InterruptedException {
         Common common = new Common();
         common.runSubscriptionConsumer(TOPIC_NAME, "consumerRebalancingGroup", "rebalancingConsumerId");
         /*Properties consumerConfig = common.createConsumerConfig("consumerRebalancingGroup", "client1");
@@ -113,7 +114,7 @@ public class Parallelism {
      * @throws ExecutionException
      */
     @Test
-    public void CrunProducerWithNullKey() throws InterruptedException, ExecutionException {
+    public void runProducerWithNullKey() throws InterruptedException, ExecutionException {
         Common common = new Common();
         common.runProducerWithNullKey(TOPIC_NAME, "consumerRebalancingProducer");
     }

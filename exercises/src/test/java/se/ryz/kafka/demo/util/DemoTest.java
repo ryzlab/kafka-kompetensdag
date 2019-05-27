@@ -1,16 +1,5 @@
-package se.ryz.kafka.demo;
+package se.ryz.kafka.demo.util;
 
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
-import io.confluent.kafka.serializers.KafkaAvroSerializer;
-import io.confluent.kafka.serializers.subject.RecordNameStrategy;
-import org.apache.avro.Schema;
-import org.apache.avro.file.DataFileReader;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericDatumReader;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.io.BinaryDecoder;
-import org.apache.avro.io.DatumReader;
-import org.apache.avro.io.DecoderFactory;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.admin.TopicListing;
@@ -30,12 +19,7 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
 import org.apache.kafka.streams.kstream.KStream;
 import org.junit.Test;
-import se.ryz.kafka.demo.avro.zombieweapon.Axe;
-import se.ryz.kafka.demo.avro.zombieweapon.ZombieWeapon;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,7 +27,7 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import static se.ryz.kafka.demo.Common.KAFKA_BROKERS;
+import static se.ryz.kafka.demo.util.Common.KAFKA_BROKERS;
 
 public class DemoTest {
 

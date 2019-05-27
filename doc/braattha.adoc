@@ -149,7 +149,7 @@ kafka-console-consumer --formatter "kafka.coordinator.group.GroupMetadataManager
 
 To view offsets for a certain consumer group:
 ....
-kafka-run-class. kafka.admin.ConsumerGroupCommand --bootstrap-server localhost:9092,localhost:9093,localhost:9094 --describe --group my-group
+kafka-run-class kafka.admin.ConsumerGroupCommand --bootstrap-server localhost:9092,localhost:9093,localhost:9094 --describe --group my-group
 ....
 
 == Run interactive shell

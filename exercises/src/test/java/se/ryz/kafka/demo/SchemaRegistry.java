@@ -6,20 +6,19 @@ import io.confluent.kafka.serializers.subject.RecordNameStrategy;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.StreamsConfig;
 import org.junit.Test;
 import se.ryz.kafka.demo.avro.zombieweapon.Axe;
 import se.ryz.kafka.demo.avro.zombieweapon.Chainsaw;
 import se.ryz.kafka.demo.avro.zombieweapon.ZombieWeapon;
+import se.ryz.kafka.demo.util.Common;
 
 import java.util.Properties;
 
 /*
+Create necessary Topics
 
- TOPIC_NAME=zombiefight-avro-topicname-topic
+
+ TOPIC_NAME=zombiefight-avro-topicname-strategy
  # Delete Topic if it exists
  kafka-topics --delete \
  --if-exists \
@@ -39,7 +38,7 @@ import java.util.Properties;
  --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 
- TOPIC_NAME=zombiefight-avro-recordname-topic
+ TOPIC_NAME=zombiefight-avro-recordname-strategy
  # Delete Topic if it exists
  kafka-topics --delete \
  --if-exists \
@@ -66,22 +65,22 @@ public class SchemaRegistry {
      * We will send messages of Avro type with different Schema naming strategy.
      * 0. List registered subjects in Schema Registry
      *    curl localhost:8081/subjects
-     * 1. Run {@link SchemaRegistry#AsendWithDefaultNamingStrategy()}.
+     * 1. Run {@link SchemaRegistry#sendWithTopicNamingStrategy()}.
      * 2. List subjects in Shcema Registry and see that our Avro Object is stored there.
      *    curl localhost:8081/subjects
-     * 3. run {@link SchemaRegistry#BsendWithRecordNameStrategy()}
-     * 4. List subjects in Schema Registry again.
+     * 3. Run {@link SchemaRegistry#sendIncompatibleTypeWithTopicNamingStrategy()} and verify that we can't send
+     *    message with another type
+     * 4. run {@link SchemaRegistry#sendWithRecordNameStrategy()}. It will send two messages of different type
+     * 5. List subjects in Schema Registry again.
      *    curl localhost:8081/subjects
-     *
-     * Try to instantiate an Avro object of another type and send it to 'zombiefight-avro-topicname-topic' and
-     * see what happens.
+     *    You will se the three messages defined in Schema Registry
      *
      * We can retrieve subject versions
      *     curl localhost:8081/subjects/se.ryz.kafka.demo.avro.zombieweapon.ZombieWeapon/versions
      *
      * We can also retrieve schema definition. Examples:
      *     curl localhost:8081/subjects/se.ryz.kafka.demo.avro.zombieweapon.ZombieWeapon/versions/latest
-     *     curl localhost:8081/subjects/zombiefight-avro-topicname-topic-value/versions/latest
+     *     curl localhost:8081/subjects/zombiefight-avro-topicname-strategy-value/versions/latest
      *
      * Extra work:
      * Modify the avro schema definition and re-run this exercise to try out compatible schema changes
@@ -90,11 +89,11 @@ public class SchemaRegistry {
 
     /**
      * Create a KafkaProducer that sends a message of type '<'String, {@link ZombieWeapon}'>' to the topic
-     * 'zombiefight-avro-topicname-topic'. Use default naming strategy, just don't configure the producer property
+     * 'zombiefight-avro-topicname-strategy'. Use default naming strategy, just don't configure the producer property
      * {@link AbstractKafkaAvroSerDeConfig#VALUE_SUBJECT_NAME_STRATEGY}.
      */
     @Test
-    public void AsendWithDefaultNamingStrategy() {
+    public void sendWithTopicNamingStrategy() {
         Common common = new Common();
         Properties props = common.createProcessorProducerProperties(null);
         // Override Value Serializer to be Avro
@@ -106,20 +105,44 @@ public class SchemaRegistry {
         KafkaProducer<String, ZombieWeapon> producer = new KafkaProducer<>(props);
         Chainsaw command = new Chainsaw("ZCS5817, ZOMBI 16\" 58V 4AH CHAINSAW");
         ZombieWeapon zombieWeapon = new ZombieWeapon("Command description", command);
-        ProducerRecord<String, ZombieWeapon> record = new ProducerRecord<>("zombiefight-avro-topicname-topic", "fight1", zombieWeapon);
+        ProducerRecord<String, ZombieWeapon> record = new ProducerRecord<>("zombiefight-avro-topicname-strategy", "fight1", zombieWeapon);
         producer.send(record);
         producer.flush();
         producer.close();
     }
 
     /**
-     * Now create a similar KafkaProducer as {@link SchemaRegistry#AsendWithDefaultNamingStrategy()} but now with the property
+     * Create a KafkaProducer that sends a message of type '<'String, {@link ZombieWeapon}'>' to the topic
+     * 'zombiefight-avro-topicname-strategy'. Use default naming strategy, just don't configure the producer property
+     * {@link AbstractKafkaAvroSerDeConfig#VALUE_SUBJECT_NAME_STRATEGY}.
+     */
+    @Test
+    public void sendIncompatibleTypeWithTopicNamingStrategy() {
+        Common common = new Common();
+        Properties props = common.createProcessorProducerProperties(null);
+        // Override Value Serializer to be Avro
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
+        props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, Common.SCHEMA_REGISTRY_URL);
+        // Default Key and Value name strategy is TopicNameStrategy
+
+        KafkaProducer<String, Axe> producer = new KafkaProducer<>(props);
+        Axe axe = new Axe(12);
+        ProducerRecord<String, Axe> record = new ProducerRecord<>("zombiefight-avro-topicname-strategy", "fight1", axe);
+        producer.send(record);
+        producer.flush();
+        producer.close();
+    }
+
+
+    /**
+     * Now create a similar KafkaProducer as {@link SchemaRegistry#sendWithTopicNamingStrategy()} but now with the property
      * {@link AbstractKafkaAvroSerDeConfig#VALUE_SUBJECT_NAME_STRATEGY} set to
      * {@link io.confluent.kafka.serializers.subject.RecordNameStrategy} as the Schema naming Strategy.
      * Again, send a message of type '<'String, {@link ZombieWeapon}'>'
      */
     @Test
-    public void BsendWithRecordNameStrategy() {
+    public void sendWithRecordNameStrategy() {
         Common common = new Common();
         Properties props = common.createProcessorProducerProperties(null);
         // Override Value Serializer to be Avro
@@ -133,37 +156,22 @@ public class SchemaRegistry {
         KafkaProducer<String, ZombieWeapon> producer = new KafkaProducer<>(props);
         Axe weapon = new Axe(8);
         ZombieWeapon zombieWeapon = new ZombieWeapon("Command description", weapon);
-        ProducerRecord<String, ZombieWeapon> record = new ProducerRecord<>("zombiefight-avro-recordname-topic", "fight2", zombieWeapon);
+        ProducerRecord<String, ZombieWeapon> record = new ProducerRecord<>("zombiefight-avro-recordname-strategy", "fight2", zombieWeapon);
+
         producer.send(record);
         producer.flush();
         producer.close();
+        System.out.println ("Sent a ZombieWeapon");
+
+        // Now we can happily send a message of another type
+        KafkaProducer<String, Axe> axeProducer = new KafkaProducer<>(props);
+        Axe axe = new Axe(12);
+        ProducerRecord<String, Axe> axeRecord = new ProducerRecord<>("zombiefight-avro-topicname-strategy", "fight1", axe);
+        axeProducer.send(axeRecord);
+        axeProducer.flush();
+        axeProducer.close();
+        System.out.println("Successfully sent an Axe");
     }
 
-    /**
-     * Write a KStream that receives messages from 'hello-world-avro' topic and prints messages to the console.
-     * @throws InterruptedException
-     */
-/*    @Test
-    public void Cconsume() throws InterruptedException {
-        Common common = new Common();
-        common.createConsumerConfig("consumer-" + this.getClass().getName(), "client-" + this.getClass().getName());
-        Properties streamsConfiguration = common.createStreamsClientConfiguration(this.getClass().getName(), null);
-        streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
-
-        final StreamsBuilder builder = new StreamsBuilder();
-        final KStream<String, HelloWorldCommand> commandStream = builder.stream("hello-world-avro");
-        commandStream.foreach((key, command) -> {
-            System.out.println("Command received: " + command.getCommand());
-            System.out.println("Request? " + (command.getCommand() instanceof HelloWorldRequest));
-            System.out.println("Reply? " + (command.getCommand() instanceof HelloWorldReply));
-        });
-
-        KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
-        streams.start();
-        //Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-        for (; ; ) {
-            Thread.sleep(1000);
-        }
-    }*/
 }

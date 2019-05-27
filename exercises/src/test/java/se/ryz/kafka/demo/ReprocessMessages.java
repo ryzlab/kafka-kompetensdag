@@ -6,6 +6,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.Test;
+import se.ryz.kafka.demo.util.Common;
 
 import java.time.Duration;
 import java.util.*;
@@ -19,7 +20,7 @@ Create a Topic with two partitions
 
  # Set necessary variable(s)
 
- TOPIC_NAME=reprocess-messages-topic
+ TOPIC_NAME=reprocess-messages
 
   # Delete Topic if it exists
  kafka-topics --delete \
@@ -48,7 +49,7 @@ Create a Topic with two partitions
  */
 public class ReprocessMessages {
 
-    private static final String TOPIC_NAME = "reprocess-messages-topic";
+    private static final String TOPIC_NAME = "reprocess-messages";
 
     /**
      * Run the producer once to produce records with null key.
@@ -68,6 +69,7 @@ public class ReprocessMessages {
      * Run the consumer once and see that it consumes messages. Restart and see that
      * messages are consumed from where the previous run stopped processing.
      * We will not reprocess anything.
+     * Stop the consumer
      * @throws InterruptedException
      */
     @Test
@@ -110,11 +112,10 @@ public class ReprocessMessages {
         // Assign consumer the list of created TopicPartitions
         consumer.assign(partitions);
         // Tell the consumer to seek to beginning for all its partitions
-        consumer.seekToEnd(partitions);
-
+        consumer.seekToBeginning(partitions);
 
         for (;;) {
-            ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofSeconds(1));
+            ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofSeconds(5));
             if (consumerRecords.isEmpty()) {
                 System.out.println("No records received") ;
             } else {

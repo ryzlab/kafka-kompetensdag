@@ -8,6 +8,7 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
 import org.junit.Test;
+import se.ryz.kafka.demo.util.Common;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -15,7 +16,7 @@ import java.util.concurrent.Future;
 /*
  Create a Topic with two partitions
 
- TOPIC_NAME=streaming-example-topic
+ TOPIC_NAME=streaming-example
 
  # Delete Topic if it exists
  kafka-topics --delete \
@@ -42,7 +43,7 @@ import java.util.concurrent.Future;
 
 public class StreamingExample {
 
-    private static final String TOPIC_NAME = "streaming-example-topic";
+    private static final String TOPIC_NAME = "streaming-example";
 
     /**
      * In this lab we will test a simple KStream producer and consumer.
@@ -57,7 +58,7 @@ public class StreamingExample {
      * @throws InterruptedException
      */
     @Test
-    public void AconsumeMessagesAsStream() throws InterruptedException {
+    public void consumeMessagesAsStream() throws InterruptedException {
         Common common = new Common();
         Properties streamsConfiguration = common.createStreamsClientConfiguration(this.getClass().getName() + "-application", this.getClass().getName() + "-client");
         // In the subsequent lines we define the processing topology of the Streams application.
@@ -83,7 +84,7 @@ public class StreamingExample {
      * @throws InterruptedException
      */
     @Test
-    public void BproduceMessages() throws ExecutionException, InterruptedException {
+    public void produceMessages() throws ExecutionException, InterruptedException {
         Common common = new Common();
         Properties producerProperties = common.createProcessorProducerProperties(this.getClass().getName() + "-producer-client");
         Faker faker = new Faker();
@@ -93,7 +94,7 @@ public class StreamingExample {
             Future<RecordMetadata> recordMetadataFuture = producer.send(record);
             producer.flush();
             RecordMetadata recordMetadata = recordMetadataFuture.get();
-            System.out.println(recordMetadata.topic() + ": , offset: " + recordMetadata.offset() + ", partition: " + recordMetadata.partition());
+            System.out.println("Sending to topic " + recordMetadata.topic() + ", offset: " + recordMetadata.offset() + ", partition: " + recordMetadata.partition());
             Thread.sleep(2000);
         }
     }
@@ -104,7 +105,7 @@ public class StreamingExample {
      * @throws InterruptedException
      */
     @Test
-    public void CconsumeFromNonexistingTopic() throws InterruptedException {
+    public void consumeFromNonexistingTopic() throws InterruptedException {
         Common common = new Common();
         Properties streamsConfiguration = common.createStreamsClientConfiguration(this.getClass().getName() + "-application", this.getClass().getName() + "-client");
         // In the subsequent lines we define the processing topology of the Streams application.

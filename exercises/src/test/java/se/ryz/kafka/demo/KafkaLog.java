@@ -10,7 +10,7 @@ package se.ryz.kafka.demo;
 
  Create a Topic with two partitions
 
-    TOPIC_NAME=kafka-log-topic
+    TOPIC_NAME=kafka-log
 
     # Delete Topic if it exists
     kafka-topics --delete \
@@ -31,7 +31,7 @@ package se.ryz.kafka.demo;
 
     # Kafkas log files are stored in /var/lib/kafka/data. Connect to the container for 'kafka-1' and
     # List files in that directory and see that the log file ending with '.log' is empty.
-    docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-topic-0"
+    docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-0"
 
     # Produce messages to Topic with console producer. Run the command below, type a few one-liners and exit with CTRL+C
 
@@ -40,16 +40,16 @@ package se.ryz.kafka.demo;
     --topic $TOPIC_NAME
 
     # Now run interactive shell and see that we have data in the file ending with '.log'
-    docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-topic-0"
+    docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-0"
 
     # Now we can dump the content of the Kafka log file. You should see the data you produced earlier in the payload
-    docker exec kafka-1 bash -c "kafka-run-class kafka.tools.DumpLogSegments --deep-iteration --print-data-log --files /var/lib/kafka/data/kafka-log-topic-0/00000000000000000000.log"
+    docker exec kafka-1 bash -c "kafka-run-class kafka.tools.DumpLogSegments --deep-iteration --print-data-log --files /var/lib/kafka/data/kafka-log-0/00000000000000000000.log"
 
     # Remove all data files for the topic simulating disk error or similar
-    docker exec kafka-1 bash -c "rm -rf /var/lib/kafka/data/kafka-log-topic-0"
+    docker exec kafka-1 bash -c "rm -rf /var/lib/kafka/data/kafka-log-0"
 
     # Check that files has been removed by trying to list directory again
-    docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-topic-0"
+    docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-0"
 
 
     # Kill Kafka container
@@ -59,10 +59,10 @@ package se.ryz.kafka.demo;
     docker start kafka-1
 
     # List directory and see that the data is there
-    docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-topic-0"
+    docker exec kafka-1 bash -c "ls -al /var/lib/kafka/data/kafka-log-0"
 
     # And dump the log again
-    docker exec kafka-1 bash -c "kafka-run-class kafka.tools.DumpLogSegments --deep-iteration --print-data-log --files /var/lib/kafka/data/kafka-log-topic-0/00000000000000000000.log"
+    docker exec kafka-1 bash -c "kafka-run-class kafka.tools.DumpLogSegments --deep-iteration --print-data-log --files /var/lib/kafka/data/kafka-log-0/00000000000000000000.log"
 
 
  */

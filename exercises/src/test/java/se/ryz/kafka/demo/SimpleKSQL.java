@@ -4,12 +4,15 @@ import com.github.javafaker.Faker;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;
+import se.ryz.kafka.demo.util.Common;
 
 import javax.json.Json;
 import java.util.Properties;
 import java.util.Random;
 
 /*
+
+First create the topic...
 
  TOPIC_NAME=simple-ksql
  # Delete Topic if it exists
@@ -30,9 +33,9 @@ import java.util.Random;
  --config min.insync.replicas=2 \
  --zookeeper localhost:2181,localhost:2182,localhost:2183
 
-  # Now run Run the produceMessages() method
+  # ...Now run Run the produceMessages() method...
 
-  # In a shell, start ksql
+  # ... And in a shell, start ksql
   ksql
 
   # In the KSQL shell:
@@ -60,6 +63,25 @@ import java.util.Random;
  */
 public class SimpleKSQL {
 
+
+    /**
+     * Continously produce JSON messages to simple-ksql topic
+     * @throws InterruptedException
+     */
+    @Test
+    public void produceMessages() throws InterruptedException {
+        Common common = new Common();
+        String topicName = "simple-ksql";
+
+        Faker valueFaker = new Faker();
+        Properties producerProperties = common.createProcessorProducerProperties("simpleKSQLProducer");
+        KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
+        while (true) {
+            Faker keyFaker = new Faker(new Random((int) (Math.random() * 5)));
+            sendMessage(topicName, keyFaker, valueFaker, producer);
+        }
+    }
+
     private void sendMessage(String topicName, Faker key, Faker value, KafkaProducer<String, String> producer) {
         String json = Json.createObjectBuilder()
                 .add("character", key.lebowski().character())
@@ -79,17 +101,4 @@ public class SimpleKSQL {
 
     }
 
-    @Test
-    public void produceMessages() throws InterruptedException {
-        Common common = new Common();
-        String topicName = "simple-ksql";
-
-        Faker valueFaker = new Faker();
-        Properties producerProperties = common.createProcessorProducerProperties("simpleKSQLProducer");
-        KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
-        while (true) {
-            Faker keyFaker = new Faker(new Random((int) (Math.random() * 5)));
-            sendMessage(topicName, keyFaker, valueFaker, producer);
-        }
-    }
 }
