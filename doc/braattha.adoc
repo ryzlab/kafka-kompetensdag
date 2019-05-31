@@ -35,7 +35,7 @@ docker stop kafka-1 kafka-2 kafka-3
 
 == Remove ==
 === Remove all containers
-  docker rm kafka-1 kafka-2 kafka-3 kafka-manager schema-registry zk-1 zk-2 zk-3
+  docker rm kafka-1 kafka-2 kafka-3 kafka-manager schema-registry zk-1 zk-2 zk-3 ksql-server
 
 === Remove all Kafka containers
     Note: they need to be stopped
@@ -153,3 +153,6 @@ kafka-run-class kafka.admin.ConsumerGroupCommand --bootstrap-server localhost:90
 ....
 
 == Run interactive shell
+....
+docker exec kafka-1 bash
+....
