@@ -90,7 +90,7 @@ public class Parallelism {
      * @throws ExecutionException
      */
     @Test
-    public void BrunProducerWithSameKey() throws InterruptedException, ExecutionException {
+    public void runProducerWithSameKey() throws InterruptedException, ExecutionException {
         Common common = new Common();
         Properties producerProperties = common.createProcessorProducerProperties("consumerRebalancingProducer");
         Faker faker = new Faker();
