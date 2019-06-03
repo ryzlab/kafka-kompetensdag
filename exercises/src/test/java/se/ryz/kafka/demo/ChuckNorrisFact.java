@@ -24,7 +24,7 @@ Open up a shell and remember to set PATH to .../confluent-x.y.z/bin
 
 # Create the first topic
 
- TOPIC_NAME=chuck-norris-facts
+ TOPIC_NAME=chuck-norris-fact
 
  # Delete Topic if it exists
     kafka-topics --delete \
@@ -47,10 +47,9 @@ Open up a shell and remember to set PATH to .../confluent-x.y.z/bin
 # To verify that the creation of the topic was successful:
 kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181,localhost:2182,localhost:2183
 
-# Go into kafka-manager ant see that the Topic exists and take note about which broker is the leader
+# Create the topic where the facts are shouted!
 
-# Create the improved quote
- TOPIC_NAME=better-chuck-norris-facts
+ TOPIC_NAME=chuck-norris-shout-fact
 
  # Delete Topic if it exists
     kafka-topics --delete \
@@ -77,8 +76,17 @@ kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181,localhost
 # Start KSQL shell and print the Topic content
 $ ksql
 
+# Bonus: Go into kafka-manager ant see that the Topic 'chuck-norris-shout-fact' exists and note which broker is the leader.
+# Kill the leader broker.
+
+docker kill KAFKA_HOST
+
+# Start it again. Look in kafka-manager and see which broker is the leader and whether it is preferred.
+# Trigger a rebalance
+
+
  */
-public class LeaderFailover {
+public class ChuckNorrisFact {
 
     /**
      * Connects to the Kafka Cluster, creates a Producer and
@@ -91,28 +99,28 @@ public class LeaderFailover {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, Common.KAFKA_BROKERS);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "chuck-norris-fact-producer-v1.0");
         KafkaProducer<String, String> quoteProducer = new KafkaProducer<>(props);
         Faker faker = new Faker();
         for (int cnt=0; ; cnt++) {
-            String key = "Chuck Norris Fact #" + cnt;
+            String key = "Chuck Norris Fact # " + cnt;
             String fact = faker.chuckNorris().fact();
             System.out.println("Sending fact " + fact);
-            ProducerRecord<String, String> movieQuoteRecord = new ProducerRecord<>("chuck-norris-facts", key, fact);
+            ProducerRecord<String, String> movieQuoteRecord = new ProducerRecord<>("chuck-norris-fact", key, fact);
             quoteProducer.send(movieQuoteRecord);
             quoteProducer.flush();
-            System.out.println("Sent fact");
             Thread.sleep(2000);
         }
     }
 
     @Test
-    public void runImproveQuoteStreamProcessor() throws InterruptedException {
+    public void chuckNorrisFactShouter() throws InterruptedException {
         final Properties streamsConfiguration = new Properties();
         // Where to find Kafka broker(s).
         streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, Common.KAFKA_BROKERS);
         // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
         // against which the application is run. A new Application ID -> consume from beginning
-        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "chucknorris-transformer-v1.0");
+        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "chuck-norris-shouter-v1.0");
 
         // Specify (de)serializers for record keys values.
         streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
@@ -123,9 +131,10 @@ public class LeaderFailover {
 
         final StreamsBuilder builder = new StreamsBuilder();
 
-        final KStream<String, String> messageStream = builder.stream("chuck-norris-facts");
-        messageStream.map((quoteNumber, quote) -> new KeyValue(quoteNumber, quote.toUpperCase()))
-                .to("better-chuck-norris-facts");
+        final KStream<String, String> messageStream = builder.stream("chuck-norris-fact");
+        messageStream
+                .map((quoteNumber, quote) -> new KeyValue(quoteNumber, quote.toUpperCase()))
+                .to("chuck-norris-shout-fact");
 
         // Create and start the stream
         final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
