@@ -11,6 +11,7 @@ import org.junit.Test;
 import se.ryz.kafka.demo.util.Common;
 
 import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 /*

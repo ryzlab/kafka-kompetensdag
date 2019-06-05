@@ -15,78 +15,21 @@ import org.junit.Test;
 import se.ryz.kafka.demo.util.Common;
 
 import java.util.Properties;
+import java.util.Random;
 
 /*
 
-
-Open up a shell and remember to set PATH to .../confluent-x.y.z/bin
-
-
-# Create the first topic
-
- TOPIC_NAME=chuck-norris-fact
-
- # Delete Topic if it exists
-    kafka-topics --delete \
-        --if-exists \
-        --topic $TOPIC_NAME \
-        --zookeeper localhost:2181,localhost:2182,localhost:2183
-
- # Create Topic(s) for Lab
- PARTITION_COUNT=1
- REPLICATION_FACTOR=3
-
- kafka-topics --create \
- --topic $TOPIC_NAME \
- --partitions $PARTITION_COUNT \
- --replication-factor $REPLICATION_FACTOR \
- --if-not-exists \
- --config min.insync.replicas=2 \
- --zookeeper localhost:2181,localhost:2182,localhost:2183
-
-# To verify that the creation of the topic was successful:
-kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181,localhost:2182,localhost:2183
-
-# Create the topic where the facts are shouted!
-
- TOPIC_NAME=chuck-norris-shout-fact
-
- # Delete Topic if it exists
-    kafka-topics --delete \
-        --if-exists \
-        --topic $TOPIC_NAME \
-        --zookeeper localhost:2181,localhost:2182,localhost:2183
-
- # Create Topic(s) for Lab
- PARTITION_COUNT=1
- REPLICATION_FACTOR=3
-
- kafka-topics --create \
- --topic $TOPIC_NAME \
- --partitions $PARTITION_COUNT \
- --replication-factor $REPLICATION_FACTOR \
- --if-not-exists \
- --config min.insync.replicas=2 \
- --zookeeper localhost:2181,localhost:2182,localhost:2183
-
-# To verify that the creation of the topic was successful:
-kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181,localhost:2182,localhost:2183
-
-
-# Start KSQL shell and print the Topic content
-$ ksql
-
-# Bonus: Go into kafka-manager ant see that the Topic 'chuck-norris-shout-fact' exists and note which broker is the leader.
-# Kill the leader broker.
-
-docker kill KAFKA_HOST
-
-# Start it again. Look in kafka-manager and see which broker is the leader and whether it is preferred.
-# Trigger a rebalance
-
-
+Look in doc/exercises/ChuckNorrisFact.adoc for instructions
  */
 public class ChuckNorrisFact {
+
+    private String whoSaidIt() {
+        // We want to initialize the faker with a random seed that can take a limited number of values
+        // So instantiate it with a random number of a limited value
+        Faker faker = new Faker(new Random(new Random().nextInt(5)));
+        return faker.lebowski().character();
+    }
+
 
     /**
      * Connects to the Kafka Cluster, creates a Producer and
@@ -103,13 +46,13 @@ public class ChuckNorrisFact {
         KafkaProducer<String, String> quoteProducer = new KafkaProducer<>(props);
         Faker faker = new Faker();
         for (int cnt=0; ; cnt++) {
-            String key = "Chuck Norris Fact # " + cnt;
+            String key = whoSaidIt();
             String fact = faker.chuckNorris().fact();
-            System.out.println("Sending fact " + fact);
+            System.out.println("Sending record: " + key + ": " + fact);
             ProducerRecord<String, String> movieQuoteRecord = new ProducerRecord<>("chuck-norris-fact", key, fact);
             quoteProducer.send(movieQuoteRecord);
             quoteProducer.flush();
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         }
     }
 
