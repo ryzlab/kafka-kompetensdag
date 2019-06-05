@@ -93,7 +93,7 @@ The topics are now visible in Kafka-Manager, http://localhost:9000
     $ ksql
     print 'chuck-norris-shout-fact';
 
-== Run producer and consumer
+== Run Producer and Stream applications
 Now run the two tests
 
   se.ryz.kafka.demo.ChuckNorrisFact.chuckNorrisFactProducer

@@ -45,12 +45,12 @@ public class ChuckNorrisFact {
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "chuck-norris-fact-producer-v1.0");
         KafkaProducer<String, String> quoteProducer = new KafkaProducer<>(props);
         Faker faker = new Faker();
-        for (int cnt=0; ; cnt++) {
+        while (true) {
             String key = whoSaidIt();
             String fact = faker.chuckNorris().fact();
             System.out.println("Sending record: " + key + ": " + fact);
-            ProducerRecord<String, String> movieQuoteRecord = new ProducerRecord<>("chuck-norris-fact", key, fact);
-            quoteProducer.send(movieQuoteRecord);
+            ProducerRecord<String, String> chuckNorrisFactRecord = new ProducerRecord<>("chuck-norris-fact", key, fact);
+            quoteProducer.send(chuckNorrisFactRecord);
             quoteProducer.flush();
             Thread.sleep(1000);
         }
@@ -76,7 +76,7 @@ public class ChuckNorrisFact {
 
         final KStream<String, String> messageStream = builder.stream("chuck-norris-fact");
         messageStream
-                .map((quoteNumber, quote) -> new KeyValue(quoteNumber, quote.toUpperCase()))
+                .map((whoSaidId, quote) -> new KeyValue(whoSaidId, quote.toUpperCase()))
                 .to("chuck-norris-shout-fact");
 
         // Create and start the stream
