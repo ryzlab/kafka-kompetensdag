@@ -15,21 +15,12 @@ import org.junit.Test;
 import se.ryz.kafka.demo.util.Common;
 
 import java.util.Properties;
-import java.util.Random;
 
 /*
 
 Look in doc/exercises/ChuckNorrisFact.adoc for instructions
  */
 public class ChuckNorrisFact {
-
-    private String whoSaidIt() {
-        // We want to initialize the faker with a random seed that can take a limited number of values
-        // So instantiate it with a random number of a limited value
-        Faker faker = new Faker(new Random(new Random().nextInt(5)));
-        return faker.lebowski().character();
-    }
-
 
     /**
      * Connects to the Kafka Cluster, creates a Producer and
@@ -46,7 +37,7 @@ public class ChuckNorrisFact {
         KafkaProducer<String, String> quoteProducer = new KafkaProducer<>(props);
         Faker faker = new Faker();
         while (true) {
-            String key = whoSaidIt();
+            String key = faker.superhero().name();
             String fact = faker.chuckNorris().fact();
             System.out.println("Sending record: " + key + ": " + fact);
             ProducerRecord<String, String> chuckNorrisFactRecord = new ProducerRecord<>("chuck-norris-fact", key, fact);
