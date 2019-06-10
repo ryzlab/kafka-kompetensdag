@@ -5,6 +5,8 @@
 
 Go to https://www.confluent.io/download/ and download Confluent Platform. Unpack and set PATH to .../confluent-x.y.z/bin
 
+  export PATH=/..../confluent-x.y.z/bin
+
 == Start the Demo Cluster
 
     docker-compose up
@@ -17,7 +19,7 @@ Click 'Cluster->Add cluster'
 
 === Fill in the following and leave everything else as default values
 
-Cluster name: kafka-docker +
+Cluster name (can be any name): kafka-docker +
 Cluster Zookeeper Hosts: zk-1:2181,zk-2:2181,zk-3:2181 +
 Check 'Enable JMX Polling...' +
 Check 'Poll consumer information...' +
@@ -28,61 +30,53 @@ Click 'Save'
 
 === Create the first Topic
 
-IMPORTANT: Set the TOPIC_NAME variable for the following commands to work
-
-    TOPIC_NAME=chuck-norris-fact
-
 Delete Topic if it exists
 
     kafka-topics --delete \
         --if-exists \
-        --topic $TOPIC_NAME \
+        --topic chuck-norris-fact \
         --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 Create the first Topic
 
-    PARTITION_COUNT=1
-    REPLICATION_FACTOR=3
     kafka-topics --create \
-        --topic $TOPIC_NAME \
-        --partitions $PARTITION_COUNT \
-        --replication-factor $REPLICATION_FACTOR \
+        --topic chuck-norris-fact \
+        --partitions 1 \
+        --replication-factor 3 \
         --if-not-exists \
         --config min.insync.replicas=2 \
         --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 To verify that the creation of the topic was successful:
 
-    kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181,localhost:2182,localhost:2183
+    kafka-topics --describe \
+        --topic chuck-norris-fact \
+        --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 === Create the second Topic
-
-IMPORTANT: Set the TOPIC_NAME variable for the following commands to work
-
-    TOPIC_NAME=chuck-norris-shout-fact
 
 Delete Topic if it exists
 
     kafka-topics --delete \
         --if-exists \
-        --topic $TOPIC_NAME \
+        --topic chuck-norris-shout-fact \
         --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 Create the second topic where the facts are shouted!
 
-    PARTITION_COUNT=1
-    REPLICATION_FACTOR=3
     kafka-topics --create \
-        --topic $TOPIC_NAME \
-        --partitions $PARTITION_COUNT \
-        --replication-factor $REPLICATION_FACTOR \
+        --topic chuck-norris-shout-fact \
+        --partitions 1 \
+        --replication-factor 3 \
         --if-not-exists \
         --config min.insync.replicas=2 \
         --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 To verify that the creation of the topic was successful:
 
-    kafka-topics --describe --topic $TOPIC_NAME --zookeeper localhost:2181,localhost:2182,localhost:2183
+    kafka-topics --describe \
+        --topic chuck-norris-shout-fact \
+        --zookeeper localhost:2181,localhost:2182,localhost:2183
 
 The topics are now visible in Kafka-Manager, http://localhost:9000
 
@@ -109,7 +103,7 @@ Follow the console and see that messages are produced and consumed. Look in the 
 Go into kafka-manager ant see that the Topic 'chuck-norris-shout-fact' exists and note which broker is the leader.
 Kill the leader broker.
 
-    docker kill KAFKA_HOST
+    docker kill KAFKA_LEADER_BROKER
 
 Start it again. Look in kafka-manager and see which broker is the leader and whether it is preferred.
 Trigger a 'Preferred Replica Election' and go back to the Topic view, see that the preferred leader changed again.

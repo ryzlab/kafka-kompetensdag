@@ -52,7 +52,7 @@ public class ChuckNorrisFact {
             ProducerRecord<String, String> chuckNorrisFactRecord = new ProducerRecord<>("chuck-norris-fact", key, fact);
             quoteProducer.send(chuckNorrisFactRecord);
             quoteProducer.flush();
-            Thread.sleep(1000);
+            Thread.sleep(4000);
         }
     }
 
