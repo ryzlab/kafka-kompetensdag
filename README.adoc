@@ -10,14 +10,14 @@ Installera på det bästa sättet för din plattform
 
 Confluent Platform distribueras som en tarboll eller zip. Den laddas hem från Confluents hemsida.
 
-Surfa till https://www.confluent.io/download, klicka på "Download Version 5.1.2" och följ instruktionerna
+Surfa till https://www.confluent.io/download, klicka på "Download Version X.X.X" och följ instruktionerna
 Packa upp distributionen och sätt PATH.
 
-  $ tar xzf confluent-5.1.2-2.11.zip
-  $ cd confluent-5.1.2/bin
+  $ tar xzf confluent-X-X-X.zip
+  $ cd confluent-X.X.X/bin
   $ export PATH=$PATH:`pwd`
 
-NOTE: Det är viktigt att sätta PATH till `.../confluent-5.1.2/bin` för att kafkakommandona (t.ex. kafka-topics och kafka-console-producer mm)
+NOTE: Det är viktigt att sätta PATH till `.../confluent-X.X.X/bin` för att kafkakommandona (t.ex. kafka-topics och kafka-console-producer mm)
 som används i labbarna ska fungera
 
 === Kompetensdagsrepot
@@ -66,3 +66,7 @@ Det ska även gå att kommunicera med Zookeeper för att t.ex. lista skapade top
 YES!!! Redo!
 
 
+== Fler exempel från Confluent
+Confluent har ett bra repo med många exempel, bland annat för att köra Kafka in-memory:
+
+https://github.com/confluentinc/kafka-streams-examples
