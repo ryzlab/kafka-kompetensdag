@@ -39,10 +39,10 @@ public class ChuckNorrisFact {
         while (true) {
             String key = faker.superhero().name();
             String fact = faker.chuckNorris().fact();
-            System.out.println("Sending record: " + key + ": " + fact);
             ProducerRecord<String, String> chuckNorrisFactRecord = new ProducerRecord<>("chuck-norris-fact", key, fact);
             quoteProducer.send(chuckNorrisFactRecord);
             quoteProducer.flush();
+            System.out.println("Sent record");
             Thread.sleep(4000);
         }
     }
@@ -74,6 +74,7 @@ public class ChuckNorrisFact {
         final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
         streams.start();
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+        System.out.println("Check KSQL for output ");
         for (; ; ) {
             Thread.sleep(1000);
         }

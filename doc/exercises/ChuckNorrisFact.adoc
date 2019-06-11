@@ -41,8 +41,8 @@ Create the first Topic
 
     kafka-topics --create \
         --topic chuck-norris-fact \
-        --partitions 1 \
-        --replication-factor 3 \
+        --partitions 2 \
+        --replication-factor 2 \
         --if-not-exists \
         --config min.insync.replicas=2 \
         --zookeeper localhost:2181,localhost:2182,localhost:2183
@@ -66,8 +66,8 @@ Create the second topic where the facts are shouted!
 
     kafka-topics --create \
         --topic chuck-norris-shout-fact \
-        --partitions 1 \
-        --replication-factor 3 \
+        --partitions 2 \
+        --replication-factor 2 \
         --if-not-exists \
         --config min.insync.replicas=2 \
         --zookeeper localhost:2181,localhost:2182,localhost:2183
