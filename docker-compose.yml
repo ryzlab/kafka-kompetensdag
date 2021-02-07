@@ -105,6 +105,11 @@ services:
                 bootstrap.servers: "kafka-1:19092"
               schema-registry:
                 url: "http://schema-registry:8081"
+    ports:
+      - 8080:8080
+    links:
+      - kafka-1
+      - schema-registry
 
   schema-registry:
     container_name: "schema-registry"
