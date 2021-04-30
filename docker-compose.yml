@@ -2,7 +2,7 @@ version: "3"
 services:
   zk-1:
     container_name: "zk-1"
-    image: confluentinc/cp-zookeeper:6.0.1
+    image: confluentinc/cp-zookeeper:6.1.0
     ports:
       - "2181:2181"
     environment:
@@ -15,7 +15,7 @@ services:
 
   zk-2:
     container_name: "zk-2"
-    image: confluentinc/cp-zookeeper:6.0.1
+    image: confluentinc/cp-zookeeper:6.1.0
     ports:
       - "2182:2181"
     environment:
@@ -28,7 +28,7 @@ services:
 
   zk-3:
     container_name: "zk-3"
-    image: confluentinc/cp-zookeeper:6.0.1
+    image: confluentinc/cp-zookeeper:6.1.0
     ports:
       - "2183:2181"
     environment:
@@ -41,7 +41,7 @@ services:
 
   kafka-1:
     container_name: "kafka-1"
-    image: confluentinc/cp-kafka:6.0.1
+    image: confluentinc/cp-kafka:6.1.0
     ports:
       - "9092:9092"
     environment:
@@ -60,7 +60,7 @@ services:
 
   kafka-2:
     container_name: "kafka-2"
-    image: confluentinc/cp-kafka:6.0.1
+    image: confluentinc/cp-kafka:6.1.0
     ports:
       - "9093:9093"
     environment:
@@ -78,7 +78,7 @@ services:
 
   kafka-3:
     container_name: "kafka-3"
-    image: confluentinc/cp-kafka:6.0.1
+    image: confluentinc/cp-kafka:6.1.0
     ports:
       - "9094:9094"
     environment:
@@ -95,6 +95,7 @@ services:
       KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
 
   akhq:
+    container_name: "akhq"
     image: tchiotludo/akhq
     environment:
       AKHQ_CONFIGURATION: |
@@ -111,9 +112,18 @@ services:
       - kafka-1
       - schema-registry
 
+  CMAK:
+    container_name: "cmak"
+    image: hlebalbau/kafka-manager:stable
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      ZK_HOSTS: "zk-1:2181,zk-2:2181,zk-3:2181"
+
   schema-registry:
     container_name: "schema-registry"
-    image: confluentinc/cp-schema-registry:6.0.1
+    image: confluentinc/cp-schema-registry:6.1.0
     ports:
       - "8081:8081"
     environment:
@@ -123,11 +133,11 @@ services:
 
   ksqldb-server:
     container_name: "ksqldb-server"
-    image: confluentinc/cp-ksqldb-server:6.0.1
+    image: confluentinc/cp-ksqldb-server:6.1.0
     ports:
       - "8088:8088"
     environment:
       KSQL_BOOTSTRAP_SERVERS: kafka-1:19092,kafka-2:29092,kafka-3:39092
       KSQL_LISTENERS: http://0.0.0.0:8088
       KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-
+      CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
